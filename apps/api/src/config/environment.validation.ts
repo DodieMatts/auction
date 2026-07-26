@@ -43,4 +43,21 @@ export const environmentValidationSchema = Joi.object({
     .min(1000)
     .max(600000)
     .default(30000),
+  JWT_ACCESS_SECRET: Joi.string()
+    .min(32)
+    .invalid("replace-with-at-least-32-random-characters")
+    .required()
+    .messages({
+      "any.invalid": "JWT_ACCESS_SECRET must be replaced",
+      "any.required": "JWT_ACCESS_SECRET is required",
+      "string.empty": "JWT_ACCESS_SECRET is required",
+      "string.min": "JWT_ACCESS_SECRET must be at least 32 characters",
+    }),
+  JWT_ACCESS_TTL_SECONDS: Joi.number()
+    .integer()
+    .min(60)
+    .max(86400)
+    .default(900),
+  JWT_ISSUER: Joi.string().trim().min(1).default("auction-api"),
+  JWT_AUDIENCE: Joi.string().trim().min(1).default("auction-web"),
 });
