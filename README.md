@@ -167,3 +167,59 @@ Cancel an eligible auction:
   "reason": "Administrative cancellation"
 }
 ```
+
+## Bidder Auction Discovery
+
+Bidder auction routes require a bidder bearer token. Administrators use the
+separate administrator routes.
+
+```text
+GET /api/auctions
+GET /api/auctions/:auctionId
+```
+
+Draft and cancelled auctions remain hidden and return `404` from the detail
+route. Published and settled auctions are visible. Auction phases are derived
+from PostgreSQL time, and responses include the authoritative `serverTime`.
+Bid records, user records, idempotency identifiers, version fields, and
+settlement or cancellation metadata are excluded.
+
+List visible auctions:
+
+```bash
+curl 'http://127.0.0.1:3001/api/auctions?page=1&limit=20' \
+  -H 'Authorization: Bearer <bidder-access-token>'
+```
+
+Safe response shape:
+
+```json
+{
+  "data": [
+    {
+      "id": "00000000-0000-4000-8000-000000000010",
+      "title": "Estate Auction",
+      "description": "Local preview by appointment.",
+      "currency": "USD",
+      "startTime": "2027-01-01T15:00:00.000Z",
+      "revealTime": "2027-01-01T16:00:00.000Z",
+      "endTime": "2027-01-01T17:00:00.000Z",
+      "status": "PUBLISHED",
+      "phase": "SCHEDULED"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 1,
+    "totalPages": 1
+  },
+  "serverTime": "2026-07-26T18:00:00.000Z"
+}
+```
+
+Verify bidder auction discovery with:
+
+```bash
+npm run verify:bidder-auction-integration --workspace apps/api
+```

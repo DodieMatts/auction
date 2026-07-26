@@ -17,7 +17,8 @@
     "db:verify-schema": "node scripts/verify-database-schema.mjs",
     "db:seed": "prisma db seed",
     "verify:auth-integration": "node scripts/verify-auth-integration.mjs",
-    "verify:auction-admin-integration": "node scripts/verify-auction-admin-integration.mjs"
+    "verify:auction-admin-integration": "node scripts/verify-auction-admin-integration.mjs",
+    "verify:bidder-auction-integration": "node scripts/verify-bidder-auction-integration.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.28",
