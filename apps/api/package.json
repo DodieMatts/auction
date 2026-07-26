@@ -12,7 +12,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:verify-schema": "node scripts/verify-database-schema.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.28",
