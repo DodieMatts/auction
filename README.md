@@ -407,3 +407,88 @@ Verify settlement integration with:
 ```bash
 npm run verify:auction-settlement-integration --workspace apps/api
 ```
+
+## Auction Results
+
+Auction results are authenticated and available only after settlement. Result
+reads use finalized bid statuses and never modify auction, bid, commitment, or
+reveal records.
+
+```text
+GET /api/auctions/:auctionId/results
+GET /api/admin/auctions/:auctionId/results
+```
+
+Bidder results require a bidder bearer token. Draft and cancelled auctions remain
+hidden with `404`; published but unsettled auctions return `409`. Settled auction
+results include auction details, the winning amount when there is a winner,
+aggregate counts, authoritative server time, and the requesting bidder's own
+outcome.
+
+Bidder outcomes:
+
+```text
+NOT_PARTICIPATED
+WON
+LOST
+INVALID
+```
+
+Bidders never receive winner identity, other bidder identities, other losing
+amounts, invalid reveal details, secrets, commitment hashes, or request
+identifiers. Bidders may see only their own revealed amount.
+
+Administrator results require an administrator bearer token. Administrators may
+see the winning bidder ID, winning bidder email, winning amount, and aggregate
+settlement counts. Administrator responses still exclude losing amounts, losing
+bidder identities, reveal secrets, commitment hashes, invalid reveal details,
+password hashes, and request identifiers.
+
+Bidder result example:
+
+```json
+{
+  "auction": {
+    "id": "00000000-0000-4000-8000-000000000050",
+    "title": "Example auction",
+    "description": "Example description",
+    "currency": "USD",
+    "startTime": "2026-01-01T15:00:00.000Z",
+    "revealTime": "2026-01-01T16:00:00.000Z",
+    "endTime": "2026-01-01T17:00:00.000Z",
+    "status": "SETTLED",
+    "phase": "SETTLED",
+    "settledAt": "2026-01-01T17:05:00.000Z"
+  },
+  "result": {
+    "winner": {
+      "amountCents": "12500"
+    },
+    "totalBidCount": 3,
+    "validRevealCount": 2,
+    "invalidBidCount": 1,
+    "yourOutcome": {
+      "status": "LOST",
+      "amountCents": "11000"
+    }
+  },
+  "serverTime": "2026-01-01T17:10:00.000Z"
+}
+```
+
+HTTP outcomes:
+
+```text
+200 results available
+401 unauthenticated
+403 wrong role
+404 unknown or hidden auction
+409 results unavailable
+500 inconsistent result data
+```
+
+Verify result integration with:
+
+```bash
+npm run verify:auction-results-integration --workspace apps/api
+```
