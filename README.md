@@ -71,3 +71,40 @@ Run the API integration verification with:
 ```bash
 npm run verify:api-integration --workspace apps/api
 ```
+
+## Local Authentication Workflow
+
+Seed local development users before starting the API:
+
+```bash
+nvm use
+npm run db:up
+npm run db:seed --workspace apps/api
+npm run start:dev --workspace apps/api
+```
+
+Development credentials are local-only and come from `apps/api/.env`.
+Production seeding is blocked.
+
+Authenticate with:
+
+```bash
+curl -X POST http://127.0.0.1:3001/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@auction.local","password":"AuctionAdmin123!"}'
+```
+
+Read the current authenticated user with:
+
+```bash
+curl http://127.0.0.1:3001/api/auth/me \
+  -H 'Authorization: Bearer <access-token>'
+```
+
+Access tokens expire after fifteen minutes. Refresh tokens are intentionally excluded for now.
+
+Verify authentication integration with:
+
+```bash
+npm run verify:auth-integration --workspace apps/api
+```
