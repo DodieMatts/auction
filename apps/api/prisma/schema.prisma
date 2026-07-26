@@ -6,3 +6,131 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum UserRole {
+  ADMIN
+  BIDDER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum AuctionStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  SETTLED
+}
+
+enum BidStatus {
+  COMMITTED
+  REVEALED
+  INVALID
+  WON
+  LOST
+}
+
+enum RevealValidationStatus {
+  PENDING
+  VALID
+  INVALID
+}
+
+model User {
+  id           String     @id @default(uuid()) @db.Uuid
+  email        String     @unique @db.VarChar(320)
+  passwordHash String     @db.VarChar(255)
+  role         UserRole
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime   @updatedAt @db.Timestamptz(6)
+
+  createdAuctions Auction[] @relation("AuctionCreator")
+  bids            Bid[]     @relation("BidderBids")
+
+  @@index([role, status])
+}
+
+model Auction {
+  id                    String        @id @default(uuid()) @db.Uuid
+  creationRequestId     String        @unique @db.Uuid
+  title                 String        @db.VarChar(200)
+  description           String?       @db.Text
+  currency              String        @db.Char(3)
+  startTime             DateTime      @db.Timestamptz(6)
+  revealTime            DateTime      @db.Timestamptz(6)
+  endTime               DateTime      @db.Timestamptz(6)
+  status                AuctionStatus @default(DRAFT)
+  createdById           String        @db.Uuid
+  settlementRequestId   String?       @unique @db.Uuid
+  cancellationRequestId String?       @unique @db.Uuid
+  settledAt             DateTime?     @db.Timestamptz(6)
+  cancelledAt           DateTime?     @db.Timestamptz(6)
+  cancellationReason    String?       @db.VarChar(500)
+  version               Int           @default(0)
+  createdAt             DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime      @updatedAt @db.Timestamptz(6)
+
+  createdBy User  @relation("AuctionCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  bids      Bid[]
+
+  @@index([createdById])
+  @@index([status, startTime])
+  @@index([status, revealTime])
+  @@index([status, endTime])
+}
+
+model Bid {
+  id        String    @id @default(uuid()) @db.Uuid
+  auctionId String    @db.Uuid
+  bidderId  String    @db.Uuid
+  status    BidStatus @default(COMMITTED)
+  version   Int       @default(0)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(6)
+
+  auction        Auction            @relation(fields: [auctionId], references: [id], onDelete: Restrict)
+  bidder         User               @relation("BidderBids", fields: [bidderId], references: [id], onDelete: Restrict)
+  commitments    BidCommitment[]
+  revealAttempts BidRevealAttempt[]
+
+  @@unique([auctionId, bidderId])
+  @@index([auctionId, status])
+  @@index([bidderId])
+}
+
+model BidCommitment {
+  id              String    @id @default(uuid()) @db.Uuid
+  bidId           String    @db.Uuid
+  clientRequestId String    @unique @db.Uuid
+  commitmentHash  String    @db.Char(64)
+  protocolVersion Int       @default(1)
+  isCurrent       Boolean   @default(true)
+  committedAt     DateTime  @default(now()) @db.Timestamptz(6)
+  replacedAt      DateTime? @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+
+  bid Bid @relation(fields: [bidId], references: [id], onDelete: Restrict)
+
+  @@unique([bidId, commitmentHash])
+  @@index([bidId, committedAt])
+}
+
+model BidRevealAttempt {
+  id               String                 @id @default(uuid()) @db.Uuid
+  bidId            String                 @db.Uuid
+  clientRequestId  String                 @unique @db.Uuid
+  amountCents      BigInt
+  secret           String                 @db.VarChar(512)
+  validationStatus RevealValidationStatus @default(PENDING)
+  invalidReason    String?                @db.VarChar(255)
+  submittedAt      DateTime               @default(now()) @db.Timestamptz(6)
+  createdAt        DateTime               @default(now()) @db.Timestamptz(6)
+
+  bid Bid @relation(fields: [bidId], references: [id], onDelete: Restrict)
+
+  @@index([bidId, submittedAt])
+  @@index([bidId, validationStatus])
+}
