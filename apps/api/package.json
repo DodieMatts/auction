@@ -20,7 +20,8 @@
     "verify:auth-integration": "node scripts/verify-auth-integration.mjs",
     "verify:auction-admin-integration": "node scripts/verify-auction-admin-integration.mjs",
     "verify:bidder-auction-integration": "node scripts/verify-bidder-auction-integration.mjs",
-    "verify:bid-commitment-integration": "node scripts/verify-bid-commitment-integration.mjs"
+    "verify:bid-commitment-integration": "node scripts/verify-bid-commitment-integration.mjs",
+    "verify:bid-reveal-integration": "node scripts/verify-bid-reveal-integration.mjs"
   },
   "dependencies": {
     "@auction/commitment": "^0.1.0",
