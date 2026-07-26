@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
+import { AuctionsModule } from "./auctions/auctions.module";
 import { AuthModule } from "./auth/auth.module";
 import { environmentValidationSchema } from "./config/environment.validation";
 import { HealthModule } from "./health/health.module";
@@ -21,6 +22,7 @@ import { UsersModule } from "./users/users.module";
     PrismaModule,
     UsersModule,
     AuthModule,
+    AuctionsModule,
     HealthModule,
   ],
 })
