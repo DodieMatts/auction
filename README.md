@@ -354,3 +354,56 @@ Verify reveal integration with:
 ```bash
 npm run verify:bid-reveal-integration --workspace apps/api
 ```
+
+## Auction Settlement
+
+Auction settlement is administrator-controlled and transactional. Settlement is
+available only after a published auction has ended according to PostgreSQL time.
+
+```text
+POST /api/admin/auctions/:auctionId/settle
+```
+
+Administrator authentication is required. The request supplies a
+`settlementRequestId` for exact retries and an `expectedVersion` for optimistic
+auction concurrency control.
+
+```json
+{
+  "settlementRequestId": "00000000-0000-4000-8000-000000000040",
+  "expectedVersion": 3
+}
+```
+
+Winning rules are deterministic:
+
+```text
+1. Highest valid revealed amount
+2. Earliest current commitment time
+3. Lexicographically smallest bid ID
+```
+
+Only valid revealed bids can win. Losing valid revealed bids become `LOST`.
+Unrevealed committed bids become `INVALID`. Auctions may settle without a winner,
+including auctions with no bids. Exact retries return the existing settlement
+without incrementing versions again. Settlement responses expose only the winner
+amount; losing amounts, secrets, hashes, request identifiers, and invalid reveal
+details remain private.
+
+HTTP outcomes:
+
+```text
+200 settled or exact retry
+400 malformed input
+401 unauthenticated
+403 wrong role
+404 unknown auction
+409 lifecycle, version, or identifier conflict
+500 inconsistent auction data
+```
+
+Verify settlement integration with:
+
+```bash
+npm run verify:auction-settlement-integration --workspace apps/api
+```
