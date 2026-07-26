@@ -108,3 +108,62 @@ Verify authentication integration with:
 ```bash
 npm run verify:auth-integration --workspace apps/api
 ```
+
+## Administrator Auction Routes
+
+All administrator auction routes require an administrator bearer token.
+
+```text
+POST   /api/admin/auctions
+GET    /api/admin/auctions
+GET    /api/admin/auctions/:auctionId
+PATCH  /api/admin/auctions/:auctionId
+POST   /api/admin/auctions/:auctionId/publish
+POST   /api/admin/auctions/:auctionId/cancel
+```
+
+Auction phases are derived from PostgreSQL time. Draft changes require `expectedVersion`.
+Creation uses `creationRequestId` for idempotent retries. Cancellation uses
+`cancellationRequestId`. Published auctions are immutable, started published auctions
+cannot be cancelled, and auctions are never physically deleted.
+
+Create a draft:
+
+```json
+{
+  "creationRequestId": "00000000-0000-4000-8000-000000000001",
+  "title": "Estate Auction",
+  "description": "Local preview by appointment.",
+  "currency": "USD",
+  "startTime": "2027-01-01T15:00:00.000Z",
+  "revealTime": "2027-01-01T16:00:00.000Z",
+  "endTime": "2027-01-01T17:00:00.000Z"
+}
+```
+
+Update a draft:
+
+```json
+{
+  "expectedVersion": 0,
+  "title": "Updated Estate Auction"
+}
+```
+
+Publish a draft:
+
+```json
+{
+  "expectedVersion": 1
+}
+```
+
+Cancel an eligible auction:
+
+```json
+{
+  "cancellationRequestId": "00000000-0000-4000-8000-000000000002",
+  "expectedVersion": 2,
+  "reason": "Administrative cancellation"
+}
+```
