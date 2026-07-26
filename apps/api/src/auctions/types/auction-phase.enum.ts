@@ -1,0 +1,9 @@
+export enum AuctionPhase {
+  DRAFT = "DRAFT",
+  SCHEDULED = "SCHEDULED",
+  COMMIT = "COMMIT",
+  REVEAL = "REVEAL",
+  ENDED = "ENDED",
+  CANCELLED = "CANCELLED",
+  SETTLED = "SETTLED",
+}
