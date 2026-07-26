@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "npm run build --workspace @auction/commitment",
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -18,9 +19,11 @@
     "db:seed": "prisma db seed",
     "verify:auth-integration": "node scripts/verify-auth-integration.mjs",
     "verify:auction-admin-integration": "node scripts/verify-auction-admin-integration.mjs",
-    "verify:bidder-auction-integration": "node scripts/verify-bidder-auction-integration.mjs"
+    "verify:bidder-auction-integration": "node scripts/verify-bidder-auction-integration.mjs",
+    "verify:bid-commitment-integration": "node scripts/verify-bid-commitment-integration.mjs"
   },
   "dependencies": {
+    "@auction/commitment": "^0.1.0",
     "@nestjs/common": "^11.1.28",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.1.28",
