@@ -33,10 +33,50 @@ export async function serializableTransaction<T>(
 }
 
 function isTransactionConflict(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) {
+    return false;
+  }
+
+  if ("code" in error && (error.code === "P2034" || error.code === "40001")) {
+    return true;
+  }
+
+  if (
+    "cause" in error &&
+    typeof error.cause === "object" &&
+    error.cause !== null &&
+    isTransactionConflict(error.cause)
+  ) {
+    return true;
+  }
+
+  if (
+    "originalCode" in error &&
+    (error.originalCode === "40001" || error.originalCode === "40P01")
+  ) {
+    return true;
+  }
+
+  if ("kind" in error && error.kind === "TransactionWriteConflict") {
+    return true;
+  }
+
+  if ("originalMessage" in error && typeof error.originalMessage === "string") {
+    return isTransactionConflictMessage(error.originalMessage);
+  }
+
+  if ("message" in error && typeof error.message === "string") {
+    return isTransactionConflictMessage(error.message);
+  }
+
+  return false;
+}
+
+function isTransactionConflictMessage(message: string): boolean {
   return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    error.code === "P2034"
+    message.includes("could not serialize access") ||
+    message.includes("write conflict") ||
+    message.includes("deadlock") ||
+    message.includes("TransactionWriteConflict")
   );
 }

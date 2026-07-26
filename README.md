@@ -291,3 +291,66 @@ Verify the commitment protocol and API integration with:
 npm run verify:commitment-protocol
 npm run verify:bid-commitment-integration --workspace apps/api
 ```
+
+## Bid Revelation
+
+Bid reveals submit the integer-cent amount and original secret during the reveal
+phase. The backend recomputes the canonical commitment with `@auction/commitment`
+and compares the submitted reveal against the current commitment in constant time.
+Secrets are stored only as audit evidence and never appear in API responses.
+
+Reveal routes:
+
+```text
+POST /api/auctions/:auctionId/reveals
+GET  /api/auctions/:auctionId/reveal-status
+```
+
+Both routes require a bidder bearer token. New reveals are accepted only while
+PostgreSQL time places a published auction in reveal phase:
+
+```text
+revealTime <= database time < endTime
+```
+
+Exact retries use `clientRequestId` and return the original result, including
+after the auction closes. Invalid commitment matches are permanently audited and
+may be corrected with another reveal while the reveal window remains open. A valid
+reveal finalizes the logical bid as `REVEALED`, increments the bid version once,
+and prevents additional valid reveal attempts.
+
+Submit a reveal:
+
+```json
+{
+  "clientRequestId": "00000000-0000-4000-8000-000000000030",
+  "amountCents": "12500",
+  "secret": "<43-character-base64url-secret>",
+  "expectedBidVersion": 1
+}
+```
+
+Check reveal status:
+
+```bash
+curl http://127.0.0.1:3001/api/auctions/<auction-id>/reveal-status \
+  -H 'Authorization: Bearer <bidder-access-token>'
+```
+
+HTTP outcomes:
+
+```text
+201 valid reveal
+400 malformed input
+401 unauthenticated
+403 wrong role
+404 hidden auction
+409 lifecycle, version, or idempotency conflict
+422 commitment mismatch
+```
+
+Verify reveal integration with:
+
+```bash
+npm run verify:bid-reveal-integration --workspace apps/api
+```
