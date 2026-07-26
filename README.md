@@ -223,3 +223,71 @@ Verify bidder auction discovery with:
 ```bash
 npm run verify:bidder-auction-integration --workspace apps/api
 ```
+
+## Cryptographic Bid Commitments
+
+Bid commitments are computed client-side with the shared `@auction/commitment`
+package. The backend receives only a lowercase SHA-256 commitment hash, protocol
+version, client request ID, and optional expected bid version. Prices and secrets
+remain client-side and are rejected by API validation.
+
+Protocol version one uses this formula:
+
+```text
+SHA-256(UTF-8(JSON.stringify(canonical-array)))
+```
+
+The canonical array order is exact:
+
+```json
+[
+  "auction-bid-commitment-v1",
+  1,
+  "auction-uuid",
+  "bidder-uuid",
+  "USD",
+  "12500",
+  "base64url-secret"
+]
+```
+
+Money is represented as decimal cent strings, never floating-point values. Version-one
+secrets are 32 random bytes encoded as 43 unpadded base64url characters. Secrets
+require secure local storage; losing a secret prevents later reveal verification.
+
+Commitment routes:
+
+```text
+POST /api/auctions/:auctionId/commitments
+GET  /api/auctions/:auctionId/participation
+```
+
+Both routes require a bidder bearer token. PostgreSQL time controls commitment
+windows, and only commit-phase published auctions accept new commitments. Replacing
+a commitment requires the current bid version. Exact retries use `clientRequestId`
+and return the existing commitment without creating duplicate history.
+
+Submit a commitment:
+
+```json
+{
+  "clientRequestId": "00000000-0000-4000-8000-000000000020",
+  "commitmentHash": "fcc6de5f47975bc6a04cde64a7b93d23c229d97553d385828d0e3c3d5fa398c2",
+  "protocolVersion": 1,
+  "expectedBidVersion": 0
+}
+```
+
+Check participation:
+
+```bash
+curl http://127.0.0.1:3001/api/auctions/<auction-id>/participation \
+  -H 'Authorization: Bearer <bidder-access-token>'
+```
+
+Verify the commitment protocol and API integration with:
+
+```bash
+npm run verify:commitment-protocol
+npm run verify:bid-commitment-integration --workspace apps/api
+```
