@@ -3,24 +3,42 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "npm run build --workspace @auction/commitment",
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/main.js",
+    "verify:api-integration": "node scripts/verify-api-integration.mjs",
     "db:validate": "prisma validate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:verify-schema": "node scripts/verify-database-schema.mjs",
+    "db:seed": "prisma db seed",
+    "verify:auth-integration": "node scripts/verify-auth-integration.mjs",
+    "verify:auction-admin-integration": "node scripts/verify-auction-admin-integration.mjs",
+    "verify:bidder-auction-integration": "node scripts/verify-bidder-auction-integration.mjs",
+    "verify:bid-commitment-integration": "node scripts/verify-bid-commitment-integration.mjs",
+    "verify:bid-reveal-integration": "node scripts/verify-bid-reveal-integration.mjs",
+    "verify:auction-settlement-integration": "node scripts/verify-auction-settlement-integration.mjs",
+    "verify:auction-results-integration": "node scripts/verify-auction-results-integration.mjs"
   },
   "dependencies": {
+    "@auction/commitment": "^0.1.0",
     "@nestjs/common": "^11.1.28",
+    "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.1.28",
+    "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^11.1.28",
     "@prisma/adapter-pg": "^7.9.0",
     "@prisma/client": "^7.9.0",
+    "argon2": "^0.45.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "dotenv": "^17.4.2",
+    "joi": "^18.2.3",
     "pg": "^8.22.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
@@ -31,6 +49,7 @@
     "@types/node": "^26.1.1",
     "@types/pg": "^8.20.0",
     "prisma": "^7.9.0",
+    "tsx": "^4.23.1",
     "typescript": "^6.0.3"
   }
 }
