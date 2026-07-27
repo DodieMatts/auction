@@ -32,6 +32,8 @@
     "containers:down": "docker compose --env-file .env.production -f docker-compose.production.yml down",
     "containers:logs": "docker compose --env-file .env.production -f docker-compose.production.yml logs -f",
     "containers:status": "docker compose --env-file .env.production -f docker-compose.production.yml ps",
-    "verify:production-containers": "node scripts/verify-production-containers.mjs"
+    "verify:production-containers": "node scripts/verify-production-containers.mjs",
+    "setup:local": "bash scripts/bootstrap-local-production.sh",
+    "setup:local:reset": "bash scripts/bootstrap-local-production.sh --reset"
   }
 }
