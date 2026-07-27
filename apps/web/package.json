@@ -7,15 +7,18 @@
   },
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run build --workspace @auction/commitment",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "verify:foundation": "node scripts/verify-web-foundation.mjs",
     "verify:authentication": "node scripts/verify-web-authentication.mjs",
-    "verify:admin-auctions": "node scripts/verify-web-admin-auctions.mjs"
+    "verify:admin-auctions": "node scripts/verify-web-admin-auctions.mjs",
+    "verify:bidder-auctions": "node scripts/verify-web-bidder-auctions.mjs"
   },
   "dependencies": {
+    "@auction/commitment": "0.1.0",
     "next": "16.2.12",
     "react": "19.2.4",
     "react-dom": "19.2.4",

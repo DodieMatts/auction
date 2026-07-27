@@ -1,0 +1,34 @@
+.countdown {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-md);
+  background: var(--module-background);
+  color: var(--dashboard-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.eyebrow {
+  margin: 0 0 var(--space-1);
+  color: var(--dashboard-text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.countdown h2,
+.value,
+.warning {
+  margin: 0;
+}
+
+.value {
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.warning {
+  color: var(--dashboard-text-muted);
+}

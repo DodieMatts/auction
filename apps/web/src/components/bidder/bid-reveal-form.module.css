@@ -1,0 +1,91 @@
+.module {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-md);
+  background: var(--module-background);
+  color: var(--dashboard-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.eyebrow,
+.module h2,
+.module p {
+  margin: 0;
+}
+
+.eyebrow {
+  color: var(--status-warning);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.module p {
+  color: var(--dashboard-text-muted);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+  font-weight: 800;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-sm);
+  background: var(--module-background-raised);
+  color: var(--dashboard-text);
+  padding: var(--space-3);
+}
+
+.field textarea {
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.actions button,
+.error button {
+  min-height: 44px;
+  border: 1px solid var(--dashboard-text);
+  border-radius: var(--radius-sm);
+  background: var(--dashboard-text);
+  color: var(--module-background-raised);
+  font-weight: 800;
+}
+
+.success,
+.error {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+.success {
+  border: 1px solid var(--status-success);
+  background: var(--color-success-surface);
+}
+
+.error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border: 1px solid var(--status-danger);
+  background: var(--color-danger-surface);
+}
