@@ -1,0 +1,87 @@
+.panel {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.panel h2,
+.panel p {
+  margin: 0;
+}
+
+.panel p {
+  color: var(--dashboard-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.primaryButton,
+.dangerButton,
+.inlineButton {
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--dashboard-inverse-text);
+  cursor: pointer;
+  font-weight: 800;
+  padding: var(--space-3) var(--space-4);
+}
+
+.primaryButton {
+  background: var(--status-success);
+}
+
+.dangerButton {
+  background: var(--status-danger);
+}
+
+.inlineButton {
+  margin-left: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--dashboard-background);
+}
+
+.primaryButton:disabled,
+.dangerButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.cancelForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.cancelForm label {
+  display: grid;
+  gap: var(--space-2);
+  min-width: min(20rem, 100%);
+  font-weight: 700;
+}
+
+.cancelForm input {
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-md);
+  background: var(--module-background-raised);
+  color: var(--dashboard-text);
+  font: inherit;
+  padding: var(--space-3);
+}
+
+.unavailable {
+  color: var(--dashboard-text-muted);
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .actions,
+  .cancelForm {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

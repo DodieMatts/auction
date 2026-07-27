@@ -1,0 +1,21 @@
+.message {
+  min-height: 1.5em;
+  margin: 0;
+  font-weight: 800;
+}
+
+.success {
+  color: var(--status-success);
+}
+
+.warning {
+  color: var(--status-warning);
+}
+
+.danger {
+  color: var(--status-danger);
+}
+
+.neutral {
+  color: var(--dashboard-text-muted);
+}

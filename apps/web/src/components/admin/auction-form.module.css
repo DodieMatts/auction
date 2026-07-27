@@ -1,0 +1,78 @@
+.form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--dashboard-text);
+  font-weight: 700;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-md);
+  background: var(--module-background-raised);
+  color: var(--dashboard-text);
+  padding: var(--space-3);
+  font: inherit;
+  font-weight: 500;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.timezone {
+  margin: 0;
+  color: var(--dashboard-text-muted);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.primaryButton,
+.inlineButton {
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--dashboard-background);
+  color: var(--dashboard-inverse-text);
+  cursor: pointer;
+  font-weight: 800;
+  padding: var(--space-3) var(--space-4);
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.inlineButton {
+  margin-left: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    justify-content: stretch;
+  }
+
+  .primaryButton {
+    width: 100%;
+  }
+}
