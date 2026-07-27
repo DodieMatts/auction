@@ -1,9 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const localWorkers = 1;
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
-  workers: 1,
+  workers: process.env.CI ? 1 : localWorkers,
+  forbidOnly: Boolean(process.env.CI),
   timeout: 60_000,
   expect: {
     timeout: 10_000,

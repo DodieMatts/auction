@@ -19,3 +19,7 @@ apps/web/blob-report/
 apps/web/e2e/.auth/
 apps/web/e2e/tmp-receipts/
 apps/web/e2e/**/*.receipt.json
+.env.production
+!.env.production.example
+docker-compose.production.local.yml
+production-container-verification.log

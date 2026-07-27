@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 20.19.0
+  DATABASE_URL: postgresql://auction_app:auction_ci_password@127.0.0.1:5433/auction?schema=public
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+          cache: npm
+      - run: npm ci
+      - run: npm run verify:commitment-protocol
+      - run: npm run db:validate --workspace apps/api
+        env:
+          DATABASE_URL: postgresql://auction_app:auction_ci_password@127.0.0.1:5433/auction?schema=public
+      - run: npm run db:generate --workspace apps/api
+        env:
+          DATABASE_URL: postgresql://auction_app:auction_ci_password@127.0.0.1:5433/auction?schema=public
+      - run: npm run build --workspace apps/api
+      - run: npm run web:lint
+      - run: npm run web:typecheck
+      - run: npm run web:build
+
+  integration:
+    name: Backend integration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: auction_app
+          POSTGRES_PASSWORD: auction_ci_password
+          POSTGRES_DB: auction
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U auction_app -d auction"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate --workspace apps/api
+      - run: npm run db:deploy --workspace apps/api
+      - run: npm run verify:api-integration --workspace apps/api
+      - run: npm run verify:auth-integration --workspace apps/api
+      - run: npm run verify:auction-admin-integration --workspace apps/api
+      - run: npm run verify:bidder-auction-integration --workspace apps/api
+      - run: npm run verify:bid-commitment-integration --workspace apps/api
+      - run: npm run verify:bid-reveal-integration --workspace apps/api
+      - run: npm run verify:auction-settlement-integration --workspace apps/api
+      - run: npm run verify:auction-results-integration --workspace apps/api
+      - working-directory: apps/api
+        run: npx prisma migrate status --config prisma.config.ts
+
+  e2e:
+    name: Browser E2E
+    needs: quality
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: auction_app
+          POSTGRES_PASSWORD: auction_ci_password
+          POSTGRES_DB: auction
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U auction_app -d auction"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      CI: true
+      DATABASE_URL: postgresql://auction_app:auction_ci_password@127.0.0.1:5433/auction?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate --workspace apps/api
+      - run: npm run db:deploy --workspace apps/api
+      - run: npx playwright install chromium --with-deps
+      - run: npm run verify:system-e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-e2e-artifacts
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          retention-days: 7

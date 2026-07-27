@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
+    "node": "20.19.0"
   },
   "workspaces": [
     "apps/*",
@@ -26,6 +26,12 @@
     "verify:web-bidder-auctions": "npm run verify:bidder-auctions --workspace @auction/web",
     "test:e2e": "npm run test:e2e --workspace @auction/web",
     "test:e2e:install": "npm run test:e2e:install --workspace @auction/web",
-    "verify:system-e2e": "npm run verify:system-e2e --workspace @auction/web"
+    "verify:system-e2e": "npm run verify:system-e2e --workspace @auction/web",
+    "containers:build": "docker compose --env-file .env.production -f docker-compose.production.yml build",
+    "containers:up": "docker compose --env-file .env.production -f docker-compose.production.yml up -d",
+    "containers:down": "docker compose --env-file .env.production -f docker-compose.production.yml down",
+    "containers:logs": "docker compose --env-file .env.production -f docker-compose.production.yml logs -f",
+    "containers:status": "docker compose --env-file .env.production -f docker-compose.production.yml ps",
+    "verify:production-containers": "node scripts/verify-production-containers.mjs"
   }
 }
