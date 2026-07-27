@@ -4,6 +4,7 @@ export interface ApiRequestOptions {
   method?: ApiMethod;
   body?: unknown;
   headers?: HeadersInit;
+  accessToken?: string;
   timeoutMs?: number;
 }
 
