@@ -17,12 +17,13 @@ export function LoginForm({ returnTo }: { returnTo: string | null }) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
 
     if (state === "submitting") {
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(form);
     const email = formData.get("email");
     const password = formData.get("password");
 
@@ -65,7 +66,7 @@ export function LoginForm({ returnTo }: { returnTo: string | null }) {
       router.replace(payload.redirectTo);
       router.refresh();
     } catch {
-      const passwordInput = event.currentTarget.elements.namedItem("password");
+      const passwordInput = form.elements.namedItem("password");
 
       if (passwordInput instanceof HTMLInputElement) {
         passwordInput.value = "";

@@ -8,7 +8,7 @@
   --color-focus: #1d5fd1;
   --color-success: #16784a;
   --color-success-surface: #e8f6ef;
-  --color-warning: #b85c00;
+  --color-warning: #8f4600;
   --color-warning-surface: #fff2df;
   --color-danger: #bd2f2f;
   --color-danger-surface: #fdeaea;
@@ -89,6 +89,7 @@
 html {
   min-height: 100%;
   background: var(--color-background);
+  overflow-x: clip;
 }
 
 body {
@@ -99,6 +100,7 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.6;
+  overflow-x: clip;
   text-rendering: optimizeLegibility;
 }
 

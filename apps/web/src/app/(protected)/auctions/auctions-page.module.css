@@ -38,12 +38,14 @@
   background: var(--module-background);
   color: var(--dashboard-text);
   box-shadow: var(--shadow-sm);
+  overflow-wrap: anywhere;
 }
 
-.identity {
+.header .identity {
   flex: 0 0 auto;
   margin: 0;
   padding: var(--space-3) var(--space-4);
+  color: var(--dashboard-text);
   font-weight: 800;
 }
 

@@ -71,12 +71,12 @@ npm run web:lint
 npm run web:typecheck
 npm run web:build
 npm run verify:web-foundation
+npm run test:e2e:install
 ```
 
 `API_BASE_URL` remains server-only. The browser calls the same-origin Next.js
 layer, including `/api/system/health`, and the Next.js server talks to the
-backend. Frontend authentication, auction screens, and bidding screens remain
-unimplemented.
+backend.
 
 ## Frontend Authentication
 
@@ -707,4 +707,53 @@ npm run verify:web-foundation
 npm run verify:web-authentication
 npm run verify:web-admin-auctions
 npm run verify:web-bidder-auctions
+```
+
+## Full-System Browser E2E Testing
+
+The browser E2E suite uses Playwright with Chromium and Axe accessibility scans.
+It runs production builds of both the NestJS API and the Next.js frontend against
+real PostgreSQL records. Core backend, authentication, and frontend verification
+scripts remain separate layers and should continue to run.
+
+Install Chromium:
+
+```bash
+npm run test:e2e:install
+```
+
+Run the full system verifier:
+
+```bash
+npm run verify:system-e2e
+```
+
+Run Playwright directly when the production API and frontend are already
+running on the E2E ports:
+
+```bash
+npm run test:e2e
+npm run test:e2e:headed
+npm run test:e2e:ui
+```
+
+The system verifier uses:
+
+```text
+Frontend: http://localhost:3119
+Backend:  http://127.0.0.1:3120/api
+```
+
+The suite covers authentication, cookie protection, administrator auction
+management, optimistic concurrency conflicts, privacy checks, responsive layouts,
+and serious or critical accessibility violations. Test records use unique
+`e2e-<uuid>` namespaces and cleanup only matching temporary users and auctions.
+Browser code must not call the backend port directly; Next.js remains the
+same-origin boundary for browser requests.
+
+Testing documentation:
+
+```text
+docs/testing/system-e2e.md
+docs/testing/manual-accessibility-checklist.md
 ```

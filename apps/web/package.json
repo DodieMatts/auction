@@ -15,7 +15,12 @@
     "verify:foundation": "node scripts/verify-web-foundation.mjs",
     "verify:authentication": "node scripts/verify-web-authentication.mjs",
     "verify:admin-auctions": "node scripts/verify-web-admin-auctions.mjs",
-    "verify:bidder-auctions": "node scripts/verify-web-bidder-auctions.mjs"
+    "verify:bidder-auctions": "node scripts/verify-web-bidder-auctions.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:install": "playwright install chromium",
+    "verify:system-e2e": "node scripts/verify-system-e2e.mjs"
   },
   "dependencies": {
     "@auction/commitment": "0.1.0",
@@ -25,6 +30,8 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.62.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
