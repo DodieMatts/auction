@@ -78,6 +78,54 @@ layer, including `/api/system/health`, and the Next.js server talks to the
 backend. Frontend authentication, auction screens, and bidding screens remain
 unimplemented.
 
+## Frontend Authentication
+
+Start the local stack for authenticated frontend work:
+
+```bash
+npm run db:up
+npm run db:seed --workspace apps/api
+npm run start:dev --workspace apps/api
+npm run web:dev
+```
+
+Frontend routes:
+
+```text
+/login
+/admin
+/auctions
+```
+
+Browser-facing authentication handlers:
+
+```text
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/session
+```
+
+The browser posts credentials only to the same-origin Next.js login handler.
+Next.js forwards credentials to the NestJS backend, stores the returned backend
+JWT in one HTTP-only cookie, and returns only safe user data plus the
+role-specific redirect path. Browser JavaScript cannot read JWTs.
+
+The session cookie is `HttpOnly`, `SameSite=Lax`, `Path=/`, `Priority=High`,
+`Secure` in production, and expires with the backend access token after fifteen
+minutes. No refresh token exists.
+
+Proxy performs optimistic checks using cookie presence only for `/admin` and
+`/auctions`. Server layouts perform authoritative checks by calling backend
+`/auth/me`; roles come from the NestJS backend, not from browser state or decoded
+JWT claims. Administrators are sent to `/admin`, bidders are sent to `/auctions`,
+and incompatible return paths are ignored to prevent open redirects.
+
+Run frontend authentication verification with:
+
+```bash
+npm run verify:web-authentication
+```
+
 ## Local API Workflow
 
 Use the configured Node.js version, start PostgreSQL, build the API, and run the development server:
