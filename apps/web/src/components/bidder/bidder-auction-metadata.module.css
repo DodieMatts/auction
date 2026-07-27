@@ -1,0 +1,33 @@
+.metadata {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.metadata div {
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-md);
+  background: var(--module-background-raised);
+}
+
+.metadata dt {
+  color: var(--dashboard-text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.metadata dd {
+  margin: var(--space-2) 0 0;
+  color: var(--dashboard-text);
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .metadata {
+    grid-template-columns: 1fr;
+  }
+}

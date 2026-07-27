@@ -1,0 +1,14 @@
+.grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-md);
+  background: var(--module-background);
+  color: var(--dashboard-text-muted);
+  box-shadow: var(--shadow-sm);
+}

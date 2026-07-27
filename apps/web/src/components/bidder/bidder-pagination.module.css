@@ -1,0 +1,22 @@
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-md);
+  background: var(--module-background);
+  color: var(--dashboard-text);
+}
+
+.pagination a,
+.pagination span {
+  font-weight: 800;
+}
+
+.pagination span[aria-disabled="true"] {
+  color: var(--dashboard-text-muted);
+}
