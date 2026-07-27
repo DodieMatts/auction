@@ -46,6 +46,38 @@ npm run db:studio --workspace apps/api
 
 Warning: `docker compose down -v` permanently deletes the local PostgreSQL volume and all local database data.
 
+## Local Frontend Workflow
+
+Create the frontend environment file, install dependencies, and start the Next.js
+development server:
+
+```bash
+cp apps/web/.env.example apps/web/.env.local
+npm install
+npm run web:dev
+```
+
+Local addresses:
+
+```text
+Frontend: http://127.0.0.1:3000
+Backend:  http://127.0.0.1:3001/api
+```
+
+Run frontend checks with:
+
+```bash
+npm run web:lint
+npm run web:typecheck
+npm run web:build
+npm run verify:web-foundation
+```
+
+`API_BASE_URL` remains server-only. The browser calls the same-origin Next.js
+layer, including `/api/system/health`, and the Next.js server talks to the
+backend. Frontend authentication, auction screens, and bidding screens remain
+unimplemented.
+
 ## Local API Workflow
 
 Use the configured Node.js version, start PostgreSQL, build the API, and run the development server:
