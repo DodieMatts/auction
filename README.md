@@ -756,4 +756,37 @@ Testing documentation:
 ```text
 docs/testing/system-e2e.md
 docs/testing/manual-accessibility-checklist.md
+
+## Production Readiness
+
+The repository includes a production-like Compose stack with PostgreSQL 18,
+one-shot Prisma migrations, non-root API and web containers, an unprivileged
+Nginx reverse proxy, health checks, and private application ports. Only Nginx
+publishes `127.0.0.1:8080`; TLS termination remains external.
+
+Replace every placeholder before starting the stack:
+
+```bash
+cp .env.production.example .env.production
+npm run containers:build
+npm run containers:up
+npm run containers:status
+npm run verify:production-containers
+npm run containers:down
+```
+
+The migration service uses `prisma migrate deploy` and runs before the API.
+Production authentication requires HTTPS. `API_BASE_URL` is server-only and
+must point to the internal `http://api:3000/api` service address; it is never a
+browser-public variable. Do not commit `.env.production` or production
+credentials.
+
+Deployment documentation:
+
+```text
+docs/deployment/self-hosting.md
+docs/deployment/environment-variables.md
+docs/operations/production-runbook.md
+docs/operations/incident-checklist.md
+```
 ```
