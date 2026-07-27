@@ -21,6 +21,7 @@
     "web:lint": "npm run lint --workspace @auction/web",
     "web:typecheck": "npm run typecheck --workspace @auction/web",
     "verify:web-foundation": "npm run verify:foundation --workspace @auction/web",
-    "verify:web-authentication": "npm run verify:authentication --workspace @auction/web"
+    "verify:web-authentication": "npm run verify:authentication --workspace @auction/web",
+    "verify:web-admin-auctions": "npm run verify:admin-auctions --workspace @auction/web"
   }
 }

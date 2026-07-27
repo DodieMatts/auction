@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "verify:foundation": "node scripts/verify-web-foundation.mjs",
-    "verify:authentication": "node scripts/verify-web-authentication.mjs"
+    "verify:authentication": "node scripts/verify-web-authentication.mjs",
+    "verify:admin-auctions": "node scripts/verify-web-admin-auctions.mjs"
   },
   "dependencies": {
     "next": "16.2.12",
