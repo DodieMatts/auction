@@ -89,6 +89,7 @@
 html {
   min-height: 100%;
   background: var(--color-background);
+  overflow-x: clip;
 }
 
 body {
@@ -99,6 +100,7 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.6;
+  overflow-x: clip;
   text-rendering: optimizeLegibility;
 }
 

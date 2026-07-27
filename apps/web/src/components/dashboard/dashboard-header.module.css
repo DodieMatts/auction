@@ -12,6 +12,7 @@
 .titleGroup {
   display: grid;
   gap: var(--space-1);
+  min-width: 0;
 }
 
 .product {
@@ -25,6 +26,7 @@
 }
 
 .account {
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -40,6 +42,7 @@
   }
 
   .account {
+    width: 100%;
     justify-content: flex-start;
   }
 }

@@ -54,6 +54,9 @@ export function BidRevealForm({
         user,
         activeCommitmentHash: null,
       });
+      if (revealStatus.bid && validated.bidVersion !== revealStatus.bid.version) {
+        throw new Error("Receipt version does not match the active bid.");
+      }
       setState({ type: "ready", receipt: validated, message: "Receipt is ready to reveal." });
       return validated;
     } catch {
