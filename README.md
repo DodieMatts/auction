@@ -572,3 +572,70 @@ Verify result integration with:
 ```bash
 npm run verify:auction-results-integration --workspace apps/api
 ```
+
+## Administrator Auction UI
+
+The Next.js administrator dashboard provides the browser-facing auction
+management workspace. It keeps JWTs inside HTTP-only cookies and sends browser
+requests only to same-origin Next.js route handlers.
+
+Pages:
+
+```text
+/admin
+/admin/auctions
+/admin/auctions/new
+/admin/auctions/:auctionId
+```
+
+Browser-facing handlers:
+
+```text
+GET    /api/admin/auctions
+POST   /api/admin/auctions
+GET    /api/admin/auctions/:auctionId
+PATCH  /api/admin/auctions/:auctionId
+POST   /api/admin/auctions/:auctionId/publish
+POST   /api/admin/auctions/:auctionId/cancel
+POST   /api/admin/auctions/:auctionId/settle
+```
+
+The dashboard uses warm-neutral styling with cream modules on a contrasting
+neutral background. Green marks successful or final states, orange marks pending
+or timed lifecycle states, red marks failed or cancelled states, and every status
+also includes text and a symbol.
+
+Supported administrator workflows:
+
+```text
+View dashboard summaries
+List auctions with pagination and status filtering
+Create draft auctions
+View auction details
+Edit draft auctions
+Publish draft auctions
+Cancel eligible auctions
+Settle ended auctions
+View administrator-safe settlement results
+```
+
+Auction versions protect draft edits and lifecycle actions from concurrent
+overwrites. Creation uses `creationRequestId`, cancellation uses
+`cancellationRequestId`, and settlement uses `settlementRequestId` for safe
+idempotent retries. PostgreSQL time remains authoritative for lifecycle
+eligibility.
+
+JWTs remain browser-inaccessible. Browser requests remain same-origin. Result
+views show administrator-safe winner information only; losing amounts,
+commitment hashes, reveal secrets, and request identifiers stay hidden.
+
+Verify the administrator UI with:
+
+```bash
+npm run web:lint
+npm run web:typecheck
+npm run web:build
+npm run verify:web-foundation
+npm run verify:web-authentication
+npm run verify:web-admin-auctions
+```

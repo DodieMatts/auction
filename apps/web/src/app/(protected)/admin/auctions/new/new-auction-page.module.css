@@ -1,0 +1,33 @@
+.page {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.header,
+.module {
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-lg);
+  background: var(--module-background);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+}
+
+.header h1,
+.header p {
+  margin: 0;
+}
+
+.header h1 {
+  margin: var(--space-3) 0 var(--space-2);
+  color: var(--dashboard-text);
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.header p {
+  color: var(--dashboard-text-muted);
+}
+
+.header a {
+  color: var(--dashboard-text);
+  font-weight: 800;
+}
