@@ -23,6 +23,7 @@
   border-bottom: 1px solid var(--module-border);
   text-align: left;
   vertical-align: top;
+  overflow-wrap: anywhere;
 }
 
 .table th {
@@ -37,6 +38,7 @@
 
 .link {
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 860px) {

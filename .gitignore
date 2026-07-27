@@ -10,3 +10,12 @@ apps/web/.env.local
 apps/web/.next/
 apps/web/out/
 apps/web/node_modules/
+playwright-report/
+test-results/
+blob-report/
+apps/web/playwright-report/
+apps/web/test-results/
+apps/web/blob-report/
+apps/web/e2e/.auth/
+apps/web/e2e/tmp-receipts/
+apps/web/e2e/**/*.receipt.json

@@ -23,6 +23,9 @@
     "verify:web-foundation": "npm run verify:foundation --workspace @auction/web",
     "verify:web-authentication": "npm run verify:authentication --workspace @auction/web",
     "verify:web-admin-auctions": "npm run verify:admin-auctions --workspace @auction/web",
-    "verify:web-bidder-auctions": "npm run verify:bidder-auctions --workspace @auction/web"
+    "verify:web-bidder-auctions": "npm run verify:bidder-auctions --workspace @auction/web",
+    "test:e2e": "npm run test:e2e --workspace @auction/web",
+    "test:e2e:install": "npm run test:e2e:install --workspace @auction/web",
+    "verify:system-e2e": "npm run verify:system-e2e --workspace @auction/web"
   }
 }
