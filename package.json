@@ -14,6 +14,12 @@
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f postgres",
     "db:status": "docker compose ps",
-    "verify:commitment-protocol": "npm run build --workspace @auction/commitment && npm run verify --workspace @auction/commitment"
+    "verify:commitment-protocol": "npm run build --workspace @auction/commitment && npm run verify --workspace @auction/commitment",
+    "web:dev": "npm run dev --workspace @auction/web",
+    "web:build": "npm run build --workspace @auction/web",
+    "web:start": "npm run start --workspace @auction/web",
+    "web:lint": "npm run lint --workspace @auction/web",
+    "web:typecheck": "npm run typecheck --workspace @auction/web",
+    "verify:web-foundation": "npm run verify:foundation --workspace @auction/web"
   }
 }

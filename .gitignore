@@ -6,3 +6,7 @@ node_modules/
 dist/
 *.tsbuildinfo
 apps/api/src/generated/prisma/
+apps/web/.env.local
+apps/web/.next/
+apps/web/out/
+apps/web/node_modules/
