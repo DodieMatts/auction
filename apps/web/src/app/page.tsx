@@ -1,5 +1,11 @@
+import Link from "next/link";
+
 import { AppShell } from "@/components/layout/app-shell";
 import { SystemStatus } from "@/components/system/system-status";
+import { getOptionalCurrentUser } from "@/lib/auth/auth-dal";
+import {
+  getDefaultPathForRole,
+} from "@/lib/auth/auth-redirects";
 
 import styles from "./page.module.css";
 
@@ -22,7 +28,10 @@ const capabilities = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const user = await getHomeUser();
+  const dashboardPath = user ? getDefaultPathForRole(user.role) : null;
+
   return (
     <AppShell>
       <div className={styles.intro}>
@@ -35,6 +44,16 @@ export default function Home() {
             A foundation for private bid commitments, timed revelations, and
             administrator-controlled settlement workflows.
           </p>
+          <div className={styles.actions}>
+            <Link className={styles.primaryAction} href={dashboardPath ?? "/login"}>
+              {dashboardPath ? "Open dashboard" : "Sign in"}
+            </Link>
+            {!dashboardPath && (
+              <span className={styles.actionNote}>
+                Authentication uses HTTP-only session cookies.
+              </span>
+            )}
+          </div>
         </section>
 
         <section className={styles.section} aria-labelledby="status-title">
@@ -72,4 +91,12 @@ export default function Home() {
       </div>
     </AppShell>
   );
+}
+
+async function getHomeUser() {
+  try {
+    return await getOptionalCurrentUser();
+  } catch {
+    return null;
+  }
 }
