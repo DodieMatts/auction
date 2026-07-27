@@ -62,6 +62,11 @@ function buildApiUrl(path: string): URL {
 function buildHeaders(options: ApiRequestOptions): Headers {
   const headers = new Headers(options.headers);
   headers.set("Accept", "application/json");
+  headers.delete("Authorization");
+
+  if (options.accessToken) {
+    headers.set("Authorization", `Bearer ${options.accessToken}`);
+  }
 
   if (options.body !== undefined && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
