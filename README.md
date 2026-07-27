@@ -639,3 +639,72 @@ npm run verify:web-foundation
 npm run verify:web-authentication
 npm run verify:web-admin-auctions
 ```
+
+## Bidder Auction UI
+
+The Next.js bidder dashboard provides the authenticated auction browsing,
+commitment, reveal, participation, and personal result experience. JWTs remain
+inside HTTP-only cookies. Client components call only same-origin Next.js
+handlers; they never call the NestJS API directly.
+
+Pages:
+
+```text
+/auctions
+/auctions/:auctionId
+```
+
+Browser-facing handlers:
+
+```text
+GET  /api/auctions
+GET  /api/auctions/:auctionId
+GET  /api/auctions/:auctionId/participation
+POST /api/auctions/:auctionId/commitments
+GET  /api/auctions/:auctionId/reveal-status
+POST /api/auctions/:auctionId/reveals
+GET  /api/auctions/:auctionId/results
+```
+
+Commitments are generated inside the browser with `@auction/commitment`.
+During commitment submission, amounts and secrets stay client-side; the
+same-origin handler sends only `clientRequestId`, `commitmentHash`,
+`protocolVersion`, and `expectedBidVersion` to the backend.
+
+Reveal receipts are the recovery mechanism. After a commitment succeeds, the UI
+offers a downloadable and copyable receipt containing the amount, secret, bid
+metadata, and commitment hash needed for later reveal. The app does not store
+receipts automatically and does not use persistent browser storage. Lost
+receipts cannot be recovered. Replacing a commitment invalidates older receipts.
+
+During reveal, bidders import a JSON receipt by file upload or paste. The
+browser validates that receipt locally by recomputing the commitment before the
+same-origin reveal handler sends `amountCents`, `secret`,
+`expectedBidVersion`, and a reveal `clientRequestId` to the backend.
+
+PostgreSQL time remains authoritative for commitment and reveal windows.
+Countdowns use the backend `serverTime` only as an informational display.
+Settled result views show the winning amount, aggregate counts, and the
+requesting bidder's own outcome. Winner identities, other losing amounts,
+commitment hashes, reveal secrets, and request identifiers remain hidden from
+bidder result views.
+
+Receipt warning:
+
+```text
+Save the latest reveal receipt immediately.
+The bid cannot be revealed without it.
+The application cannot recover lost receipts.
+```
+
+Verify the bidder UI with:
+
+```bash
+npm run web:lint
+npm run web:typecheck
+npm run web:build
+npm run verify:web-foundation
+npm run verify:web-authentication
+npm run verify:web-admin-auctions
+npm run verify:web-bidder-auctions
+```
