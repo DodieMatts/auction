@@ -1,6 +1,136 @@
 # auction
 An auction house with a single-page frontend, a backend, and a database.
 
+## Quick Start: Production-Style Local Environment
+
+The repository includes a one-command Docker setup that builds the application, starts PostgreSQL, applies database migrations, seeds local users, and verifies administrator and bidder login.
+
+### Prerequisites
+
+* Docker Desktop
+* Docker Compose v2
+* Node.js `20.19.0`
+* npm
+
+From the repository root:
+
+```bash
+nvm use
+npm run setup:local
+```
+
+When setup completes, open:
+
+```text
+http://localhost:8080/login
+```
+
+### Local administrator
+
+```text
+Email: admin@auction.local
+Password: AuctionAdmin123!
+```
+
+### Local bidder
+
+```text
+Email: bidder@auction.local
+Password: AuctionBidder123!
+```
+
+These accounts are for local development only.
+
+The setup command:
+
+1. Creates `.env.production` when needed.
+2. Generates local PostgreSQL and JWT secrets when placeholders are present.
+3. Builds and starts PostgreSQL, migrations, the API, Next.js, and Nginx.
+4. Waits for the public health endpoint.
+5. Seeds the local administrator and bidder.
+6. Verifies both logins through the public application route.
+7. Prints useful status, log, stop, and reset commands.
+
+### Start again without deleting data
+
+```bash
+npm run setup:local
+```
+
+Existing local database data and valid `.env.production` values are preserved.
+
+### Reset the local environment
+
+```bash
+npm run setup:local:reset
+```
+
+Warning: the reset command deletes the local PostgreSQL Docker volume and all local auction data before rebuilding and reseeding the environment.
+
+### Common commands
+
+Check status:
+
+```bash
+docker compose \
+  -f docker-compose.production.yml \
+  --env-file .env.production \
+  ps -a
+```
+
+Follow application logs:
+
+```bash
+docker compose \
+  -f docker-compose.production.yml \
+  --env-file .env.production \
+  logs -f api web nginx
+```
+
+Stop the environment without deleting its database:
+
+```bash
+docker compose \
+  -f docker-compose.production.yml \
+  --env-file .env.production \
+  down
+```
+
+### Verify login from the terminal
+
+The browser-facing authentication route requires same-origin headers. Omitting the `Origin` header intentionally returns `403 Cross-origin request rejected`.
+
+Administrator login:
+
+```bash
+curl -i \
+  -c /tmp/auction-admin-cookies.txt \
+  -H "Content-Type: application/json" \
+  -H "Origin: http://localhost:8080" \
+  -H "Referer: http://localhost:8080/login" \
+  -d '{"email":"admin@auction.local","password":"AuctionAdmin123!"}' \
+  http://localhost:8080/api/auth/login
+```
+
+A successful response returns HTTP `200`.
+
+Bidder login:
+
+```bash
+curl -i \
+  -c /tmp/auction-bidder-cookies.txt \
+  -H "Content-Type: application/json" \
+  -H "Origin: http://localhost:8080" \
+  -H "Referer: http://localhost:8080/login" \
+  -d '{"email":"bidder@auction.local","password":"AuctionBidder123!"}' \
+  http://localhost:8080/api/auth/login
+```
+
+## Detailed Development Workflows
+
+The sections below document the individual database, frontend, API, authentication, bidding, settlement, and testing workflows.
+----------------------------------------------------------------------------------------------------------
+
 ## Local Database Workflow
 
 Use Node.js `20.19+`, `22.12+`, or `24+` for the current stable Prisma CLI.
@@ -756,6 +886,7 @@ Testing documentation:
 ```text
 docs/testing/system-e2e.md
 docs/testing/manual-accessibility-checklist.md
+```
 
 ## Production Readiness
 
@@ -788,5 +919,4 @@ docs/deployment/self-hosting.md
 docs/deployment/environment-variables.md
 docs/operations/production-runbook.md
 docs/operations/incident-checklist.md
-```
 ```

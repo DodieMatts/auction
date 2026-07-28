@@ -59,6 +59,14 @@ function createEnvironment(overrides = {}) {
     NODE_ENV: "test",
     HOST: host,
     PORT: String(port),
+    JWT_ACCESS_SECRET:
+      process.env.JWT_ACCESS_SECRET ??
+      fileEnv.JWT_ACCESS_SECRET ??
+      "api-integration-access-secret-for-testing-only-123456789",
+    JWT_REFRESH_SECRET:
+      process.env.JWT_REFRESH_SECRET ??
+      fileEnv.JWT_REFRESH_SECRET ??
+      "api-integration-refresh-secret-for-testing-only-123456789",
     ...overrides,
   };
 }
