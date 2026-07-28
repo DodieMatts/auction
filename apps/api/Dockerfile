@@ -23,10 +23,10 @@ FROM dependencies AS builder
 COPY . .
 
 RUN npm run build --workspace @auction/commitment \
-  && npm run db:generate --workspace @auction/api \
+  && DATABASE_URL="postgresql://auction_build:auction_build@127.0.0.1:5432/auction?schema=public" npm run db:generate --workspace @auction/api \
   && npm run build --workspace @auction/api \
   && find apps/api/dist -type f -name '*.map' -delete
-
+  
 FROM builder AS migrate
 ENV NODE_ENV=production
 CMD ["npm", "run", "db:deploy", "--workspace", "@auction/api"]
