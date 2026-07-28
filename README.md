@@ -1,6 +1,136 @@
 # auction
 An auction house with a single-page frontend, a backend, and a database.
 
+## Quick Start: Production-Style Local Environment
+
+The repository includes a one-command Docker setup that builds the application, starts PostgreSQL, applies database migrations, seeds local users, and verifies administrator and bidder login.
+
+### Prerequisites
+
+* Docker Desktop
+* Docker Compose v2
+* Node.js `20.19.0`
+* npm
+
+From the repository root:
+
+```bash
+nvm use
+npm run setup:local
+```
+
+When setup completes, open:
+
+```text
+http://localhost:8080/login
+```
+
+### Local administrator
+
+```text
+Email: admin@auction.local
+Password: AuctionAdmin123!
+```
+
+### Local bidder
+
+```text
+Email: bidder@auction.local
+Password: AuctionBidder123!
+```
+
+These accounts are for local development only.
+
+The setup command:
+
+1. Creates `.env.production` when needed.
+2. Generates local PostgreSQL and JWT secrets when placeholders are present.
+3. Builds and starts PostgreSQL, migrations, the API, Next.js, and Nginx.
+4. Waits for the public health endpoint.
+5. Seeds the local administrator and bidder.
+6. Verifies both logins through the public application route.
+7. Prints useful status, log, stop, and reset commands.
+
+### Start again without deleting data
+
+```bash
+npm run setup:local
+```
+
+Existing local database data and valid `.env.production` values are preserved.
+
+### Reset the local environment
+
+```bash
+npm run setup:local:reset
+```
+
+Warning: the reset command deletes the local PostgreSQL Docker volume and all local auction data before rebuilding and reseeding the environment.
+
+### Common commands
+
+Check status:
+
+```bash
+docker compose \
+  -f docker-compose.production.yml \
+  --env-file .env.production \
+  ps -a
+```
+
+Follow application logs:
+
+```bash
+docker compose \
+  -f docker-compose.production.yml \
+  --env-file .env.production \
+  logs -f api web nginx
+```
+
+Stop the environment without deleting its database:
+
+```bash
+docker compose \
+  -f docker-compose.production.yml \
+  --env-file .env.production \
+  down
+```
+
+### Verify login from the terminal
+
+The browser-facing authentication route requires same-origin headers. Omitting the `Origin` header intentionally returns `403 Cross-origin request rejected`.
+
+Administrator login:
+
+```bash
+curl -i \
+  -c /tmp/auction-admin-cookies.txt \
+  -H "Content-Type: application/json" \
+  -H "Origin: http://localhost:8080" \
+  -H "Referer: http://localhost:8080/login" \
+  -d '{"email":"admin@auction.local","password":"AuctionAdmin123!"}' \
+  http://localhost:8080/api/auth/login
+```
+
+A successful response returns HTTP `200`.
+
+Bidder login:
+
+```bash
+curl -i \
+  -c /tmp/auction-bidder-cookies.txt \
+  -H "Content-Type: application/json" \
+  -H "Origin: http://localhost:8080" \
+  -H "Referer: http://localhost:8080/login" \
+  -d '{"email":"bidder@auction.local","password":"AuctionBidder123!"}' \
+  http://localhost:8080/api/auth/login
+```
+
+## Detailed Development Workflows
+
+The sections below document the individual database, frontend, API, authentication, bidding, settlement, and testing workflows.
+----------------------------------------------------------------------------------------------------------
+
 ## Local Database Workflow
 
 Use Node.js `20.19+`, `22.12+`, or `24+` for the current stable Prisma CLI.
@@ -45,6 +175,86 @@ npm run db:studio --workspace apps/api
 ```
 
 Warning: `docker compose down -v` permanently deletes the local PostgreSQL volume and all local database data.
+
+## Local Frontend Workflow
+
+Create the frontend environment file, install dependencies, and start the Next.js
+development server:
+
+```bash
+cp apps/web/.env.example apps/web/.env.local
+npm install
+npm run web:dev
+```
+
+Local addresses:
+
+```text
+Frontend: http://127.0.0.1:3000
+Backend:  http://127.0.0.1:3001/api
+```
+
+Run frontend checks with:
+
+```bash
+npm run web:lint
+npm run web:typecheck
+npm run web:build
+npm run verify:web-foundation
+npm run test:e2e:install
+```
+
+`API_BASE_URL` remains server-only. The browser calls the same-origin Next.js
+layer, including `/api/system/health`, and the Next.js server talks to the
+backend.
+
+## Frontend Authentication
+
+Start the local stack for authenticated frontend work:
+
+```bash
+npm run db:up
+npm run db:seed --workspace apps/api
+npm run start:dev --workspace apps/api
+npm run web:dev
+```
+
+Frontend routes:
+
+```text
+/login
+/admin
+/auctions
+```
+
+Browser-facing authentication handlers:
+
+```text
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/session
+```
+
+The browser posts credentials only to the same-origin Next.js login handler.
+Next.js forwards credentials to the NestJS backend, stores the returned backend
+JWT in one HTTP-only cookie, and returns only safe user data plus the
+role-specific redirect path. Browser JavaScript cannot read JWTs.
+
+The session cookie is `HttpOnly`, `SameSite=Lax`, `Path=/`, `Priority=High`,
+`Secure` in production, and expires with the backend access token after fifteen
+minutes. No refresh token exists.
+
+Proxy performs optimistic checks using cookie presence only for `/admin` and
+`/auctions`. Server layouts perform authoritative checks by calling backend
+`/auth/me`; roles come from the NestJS backend, not from browser state or decoded
+JWT claims. Administrators are sent to `/admin`, bidders are sent to `/auctions`,
+and incompatible return paths are ignored to prevent open redirects.
+
+Run frontend authentication verification with:
+
+```bash
+npm run verify:web-authentication
+```
 
 ## Local API Workflow
 
@@ -491,4 +701,222 @@ Verify result integration with:
 
 ```bash
 npm run verify:auction-results-integration --workspace apps/api
+```
+
+## Administrator Auction UI
+
+The Next.js administrator dashboard provides the browser-facing auction
+management workspace. It keeps JWTs inside HTTP-only cookies and sends browser
+requests only to same-origin Next.js route handlers.
+
+Pages:
+
+```text
+/admin
+/admin/auctions
+/admin/auctions/new
+/admin/auctions/:auctionId
+```
+
+Browser-facing handlers:
+
+```text
+GET    /api/admin/auctions
+POST   /api/admin/auctions
+GET    /api/admin/auctions/:auctionId
+PATCH  /api/admin/auctions/:auctionId
+POST   /api/admin/auctions/:auctionId/publish
+POST   /api/admin/auctions/:auctionId/cancel
+POST   /api/admin/auctions/:auctionId/settle
+```
+
+The dashboard uses warm-neutral styling with cream modules on a contrasting
+neutral background. Green marks successful or final states, orange marks pending
+or timed lifecycle states, red marks failed or cancelled states, and every status
+also includes text and a symbol.
+
+Supported administrator workflows:
+
+```text
+View dashboard summaries
+List auctions with pagination and status filtering
+Create draft auctions
+View auction details
+Edit draft auctions
+Publish draft auctions
+Cancel eligible auctions
+Settle ended auctions
+View administrator-safe settlement results
+```
+
+Auction versions protect draft edits and lifecycle actions from concurrent
+overwrites. Creation uses `creationRequestId`, cancellation uses
+`cancellationRequestId`, and settlement uses `settlementRequestId` for safe
+idempotent retries. PostgreSQL time remains authoritative for lifecycle
+eligibility.
+
+JWTs remain browser-inaccessible. Browser requests remain same-origin. Result
+views show administrator-safe winner information only; losing amounts,
+commitment hashes, reveal secrets, and request identifiers stay hidden.
+
+Verify the administrator UI with:
+
+```bash
+npm run web:lint
+npm run web:typecheck
+npm run web:build
+npm run verify:web-foundation
+npm run verify:web-authentication
+npm run verify:web-admin-auctions
+```
+
+## Bidder Auction UI
+
+The Next.js bidder dashboard provides the authenticated auction browsing,
+commitment, reveal, participation, and personal result experience. JWTs remain
+inside HTTP-only cookies. Client components call only same-origin Next.js
+handlers; they never call the NestJS API directly.
+
+Pages:
+
+```text
+/auctions
+/auctions/:auctionId
+```
+
+Browser-facing handlers:
+
+```text
+GET  /api/auctions
+GET  /api/auctions/:auctionId
+GET  /api/auctions/:auctionId/participation
+POST /api/auctions/:auctionId/commitments
+GET  /api/auctions/:auctionId/reveal-status
+POST /api/auctions/:auctionId/reveals
+GET  /api/auctions/:auctionId/results
+```
+
+Commitments are generated inside the browser with `@auction/commitment`.
+During commitment submission, amounts and secrets stay client-side; the
+same-origin handler sends only `clientRequestId`, `commitmentHash`,
+`protocolVersion`, and `expectedBidVersion` to the backend.
+
+Reveal receipts are the recovery mechanism. After a commitment succeeds, the UI
+offers a downloadable and copyable receipt containing the amount, secret, bid
+metadata, and commitment hash needed for later reveal. The app does not store
+receipts automatically and does not use persistent browser storage. Lost
+receipts cannot be recovered. Replacing a commitment invalidates older receipts.
+
+During reveal, bidders import a JSON receipt by file upload or paste. The
+browser validates that receipt locally by recomputing the commitment before the
+same-origin reveal handler sends `amountCents`, `secret`,
+`expectedBidVersion`, and a reveal `clientRequestId` to the backend.
+
+PostgreSQL time remains authoritative for commitment and reveal windows.
+Countdowns use the backend `serverTime` only as an informational display.
+Settled result views show the winning amount, aggregate counts, and the
+requesting bidder's own outcome. Winner identities, other losing amounts,
+commitment hashes, reveal secrets, and request identifiers remain hidden from
+bidder result views.
+
+Receipt warning:
+
+```text
+Save the latest reveal receipt immediately.
+The bid cannot be revealed without it.
+The application cannot recover lost receipts.
+```
+
+Verify the bidder UI with:
+
+```bash
+npm run web:lint
+npm run web:typecheck
+npm run web:build
+npm run verify:web-foundation
+npm run verify:web-authentication
+npm run verify:web-admin-auctions
+npm run verify:web-bidder-auctions
+```
+
+## Full-System Browser E2E Testing
+
+The browser E2E suite uses Playwright with Chromium and Axe accessibility scans.
+It runs production builds of both the NestJS API and the Next.js frontend against
+real PostgreSQL records. Core backend, authentication, and frontend verification
+scripts remain separate layers and should continue to run.
+
+Install Chromium:
+
+```bash
+npm run test:e2e:install
+```
+
+Run the full system verifier:
+
+```bash
+npm run verify:system-e2e
+```
+
+Run Playwright directly when the production API and frontend are already
+running on the E2E ports:
+
+```bash
+npm run test:e2e
+npm run test:e2e:headed
+npm run test:e2e:ui
+```
+
+The system verifier uses:
+
+```text
+Frontend: http://localhost:3119
+Backend:  http://127.0.0.1:3120/api
+```
+
+The suite covers authentication, cookie protection, administrator auction
+management, optimistic concurrency conflicts, privacy checks, responsive layouts,
+and serious or critical accessibility violations. Test records use unique
+`e2e-<uuid>` namespaces and cleanup only matching temporary users and auctions.
+Browser code must not call the backend port directly; Next.js remains the
+same-origin boundary for browser requests.
+
+Testing documentation:
+
+```text
+docs/testing/system-e2e.md
+docs/testing/manual-accessibility-checklist.md
+```
+
+## Production Readiness
+
+The repository includes a production-like Compose stack with PostgreSQL 18,
+one-shot Prisma migrations, non-root API and web containers, an unprivileged
+Nginx reverse proxy, health checks, and private application ports. Only Nginx
+publishes `127.0.0.1:8080`; TLS termination remains external.
+
+Replace every placeholder before starting the stack:
+
+```bash
+cp .env.production.example .env.production
+npm run containers:build
+npm run containers:up
+npm run containers:status
+npm run verify:production-containers
+npm run containers:down
+```
+
+The migration service uses `prisma migrate deploy` and runs before the API.
+Production authentication requires HTTPS. `API_BASE_URL` is server-only and
+must point to the internal `http://api:3000/api` service address; it is never a
+browser-public variable. Do not commit `.env.production` or production
+credentials.
+
+Deployment documentation:
+
+```text
+docs/deployment/self-hosting.md
+docs/deployment/environment-variables.md
+docs/operations/production-runbook.md
+docs/operations/incident-checklist.md
 ```

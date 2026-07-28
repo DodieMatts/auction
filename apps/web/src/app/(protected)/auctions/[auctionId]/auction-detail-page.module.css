@@ -1,0 +1,65 @@
+.page {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.backLink {
+  justify-self: start;
+  color: var(--dashboard-inverse-text);
+  font-weight: 800;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.eyebrow {
+  margin: 0 0 var(--space-1);
+  color: var(--dashboard-inverse-muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  margin: 0;
+  color: var(--dashboard-inverse-text);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.05;
+}
+
+.header p {
+  max-width: 780px;
+  margin: var(--space-2) 0 0;
+  color: var(--dashboard-inverse-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.module {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-md);
+  background: var(--module-background);
+  color: var(--dashboard-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.module h2 {
+  margin: 0;
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

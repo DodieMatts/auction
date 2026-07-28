@@ -1,0 +1,105 @@
+.module {
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-md);
+  background: var(--module-background);
+  color: var(--dashboard-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.eyebrow,
+.module h2,
+.module p {
+  margin: 0;
+}
+
+.eyebrow {
+  color: var(--status-success);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.module p {
+  color: var(--dashboard-text-muted);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+  font-weight: 800;
+}
+
+.amountControl {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-sm);
+  background: var(--module-background-raised);
+}
+
+.amountControl input {
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--dashboard-text);
+  padding: var(--space-3);
+}
+
+.amountControl span {
+  padding: 0 var(--space-3);
+  color: var(--dashboard-text-muted);
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  color: var(--dashboard-text-muted);
+  font-weight: 700;
+}
+
+.check input {
+  margin-top: 0.35rem;
+}
+
+.primaryButton,
+.error button {
+  justify-self: start;
+  min-height: 44px;
+  border: 1px solid var(--dashboard-text);
+  border-radius: var(--radius-sm);
+  background: var(--dashboard-text);
+  color: var(--module-background-raised);
+  font-weight: 800;
+}
+
+.error,
+.success {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+.error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border: 1px solid var(--status-danger);
+  background: var(--color-danger-surface);
+}
+
+.success {
+  border: 1px solid var(--status-success);
+  background: var(--color-success-surface);
+}

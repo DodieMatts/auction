@@ -1,0 +1,61 @@
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  background: var(--dashboard-background);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--space-5);
+  background: var(--dashboard-background);
+  color: var(--dashboard-inverse-text);
+  border-right: 1px solid rgba(255, 250, 240, 0.16);
+}
+
+.sidebarBrand {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.brandTitle {
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.brandSubtitle {
+  color: var(--dashboard-inverse-muted);
+  font-size: 0.9rem;
+}
+
+.workspace {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: var(--dashboard-background-soft);
+}
+
+.main {
+  width: min(100% - (var(--space-6) * 2), var(--content-max-width));
+  margin: 0 auto;
+  padding: var(--space-6) 0;
+}
+
+@media (max-width: 880px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    gap: var(--space-4);
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 250, 240, 0.16);
+  }
+
+  .main {
+    width: min(100% - (var(--space-4) * 2), var(--content-max-width));
+  }
+}

@@ -1,0 +1,35 @@
+.navigation {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.link,
+.activeLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--dashboard-inverse-text);
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.link:hover,
+.activeLink {
+  border-color: rgba(255, 250, 240, 0.22);
+  background: rgba(255, 250, 240, 0.1);
+}
+
+.symbol {
+  color: var(--status-warning);
+}
+
+@media (max-width: 880px) {
+  .navigation {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}

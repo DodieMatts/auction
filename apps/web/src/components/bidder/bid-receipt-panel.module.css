@@ -1,0 +1,85 @@
+.panel {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 2px solid var(--status-warning);
+  border-radius: var(--radius-md);
+  background: var(--module-background-raised);
+  color: var(--dashboard-text);
+}
+
+.eyebrow,
+.panel h2,
+.panel p {
+  margin: 0;
+}
+
+.eyebrow {
+  color: var(--status-warning);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.details div {
+  min-width: 180px;
+  padding: var(--space-3);
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-sm);
+  background: var(--module-background);
+}
+
+.details dt {
+  color: var(--dashboard-text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.details dd {
+  margin: var(--space-1) 0 0;
+  font-weight: 800;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.actions button {
+  min-height: 44px;
+  border: 1px solid var(--dashboard-text);
+  border-radius: var(--radius-sm);
+  background: var(--dashboard-text);
+  color: var(--module-background-raised);
+  font-weight: 800;
+}
+
+.message {
+  color: var(--dashboard-text-muted);
+}
+
+.receipt {
+  display: grid;
+  gap: var(--space-2);
+  font-weight: 800;
+}
+
+.receipt textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--module-border);
+  border-radius: var(--radius-sm);
+  background: var(--module-background);
+  color: var(--dashboard-text);
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+}
