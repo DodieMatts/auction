@@ -25,6 +25,7 @@ export type BidderAuctionResultResponse = {
     yourOutcome: {
       status: BidderAuctionOutcome;
       amountCents: string | null;
+      invalidReason: string | null;
     };
   };
   serverTime: string;

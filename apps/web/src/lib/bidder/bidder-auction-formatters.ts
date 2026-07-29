@@ -1,14 +1,10 @@
 import type { AuctionPhase, BidderAuctionOutcome } from "./bidder-auction-types";
+import { formatLocalDateTime } from "../date-time";
 
 export type StatusTone = "success" | "warning" | "danger" | "neutral";
 
 export function formatAuctionDateTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Unavailable";
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
+  return formatLocalDateTime(value);
 }
 
 export function formatAuctionMoney(amountCents: string, currency: string): string {

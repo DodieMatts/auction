@@ -245,12 +245,23 @@ function parseSettlementSummary(value: unknown) {
   };
 }
 
+function parseInvalidReasonSummary(value: unknown) {
+  if (!isRecord(value)) throwInvalid();
+  return {
+    reason: parseString(value.reason),
+    count: parsePositiveInteger(value.count),
+  };
+}
+
 function parseAdminResultSummary(value: unknown) {
   if (!isRecord(value)) throwInvalid();
   return {
     totalBidCount: parseNonnegativeInteger(value.totalBidCount),
     validRevealCount: parseNonnegativeInteger(value.validRevealCount),
     invalidBidCount: parseNonnegativeInteger(value.invalidBidCount),
+    invalidReasons: Array.isArray(value.invalidReasons)
+      ? value.invalidReasons.map(parseInvalidReasonSummary)
+      : [],
     winner:
       value.winner === null
         ? null

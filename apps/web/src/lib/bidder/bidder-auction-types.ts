@@ -8,6 +8,12 @@ export type RevealValidationStatus = "PENDING" | "VALID" | "INVALID";
 
 export type BidderAuctionOutcome = "NOT_PARTICIPATED" | "WON" | "LOST" | "INVALID";
 
+export type BidInvalidReason =
+  | "NOT_REVEALED"
+  | "COMMITMENT_MISMATCH"
+  | "REPLACED_RECEIPT"
+  | "REVEAL_NOT_ACCEPTED";
+
 export interface PaginationMetadata {
   page: number;
   limit: number;
@@ -49,6 +55,7 @@ export interface BidParticipation {
   status: BidStatus;
   version: number;
   currentCommitment: CurrentCommitment;
+  invalidReason: BidInvalidReason | null;
 }
 
 export interface BidParticipationResponse {
@@ -123,6 +130,7 @@ export interface BidderAuctionResultResponse {
     yourOutcome: {
       status: BidderAuctionOutcome;
       amountCents: string | null;
+      invalidReason: BidInvalidReason | null;
     };
   };
   serverTime: string;

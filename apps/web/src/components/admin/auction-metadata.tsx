@@ -1,6 +1,6 @@
 import type { AdminAuction } from "@/lib/admin/admin-auction-types";
-import { formatAuctionDateTime } from "@/lib/admin/admin-auction-formatters";
 import { AuctionStatusBadge } from "@/components/admin/auction-status-badge";
+import { LocalDateTime } from "@/components/ui/local-date-time";
 
 import styles from "./auction-metadata.module.css";
 
@@ -29,15 +29,15 @@ export function AuctionMetadata({ auction }: AuctionMetadataProps) {
       </div>
       <div>
         <dt>Start</dt>
-        <dd>{formatAuctionDateTime(auction.startTime)}</dd>
+        <dd><LocalDateTime value={auction.startTime} /></dd>
       </div>
       <div>
         <dt>Reveal</dt>
-        <dd>{formatAuctionDateTime(auction.revealTime)}</dd>
+        <dd><LocalDateTime value={auction.revealTime} /></dd>
       </div>
       <div>
         <dt>End</dt>
-        <dd>{formatAuctionDateTime(auction.endTime)}</dd>
+        <dd><LocalDateTime value={auction.endTime} /></dd>
       </div>
       <div>
         <dt>Version</dt>
@@ -45,13 +45,11 @@ export function AuctionMetadata({ auction }: AuctionMetadataProps) {
       </div>
       <div>
         <dt>Settled</dt>
-        <dd>{auction.settledAt ? formatAuctionDateTime(auction.settledAt) : "Not settled"}</dd>
+        <dd><LocalDateTime value={auction.settledAt} fallback="Not settled" /></dd>
       </div>
       <div>
         <dt>Cancelled</dt>
-        <dd>
-          {auction.cancelledAt ? formatAuctionDateTime(auction.cancelledAt) : "Not cancelled"}
-        </dd>
+        <dd><LocalDateTime value={auction.cancelledAt} fallback="Not cancelled" /></dd>
       </div>
       <div className={styles.wide}>
         <dt>Cancellation reason</dt>

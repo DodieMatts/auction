@@ -17,6 +17,10 @@ export type SettledAuctionData = {
   totalBidCount: number;
   validRevealCount: number;
   invalidBidCount: number;
+  invalidReasons: Array<{
+    reason: string;
+    count: number;
+  }>;
   winner: {
     bidId: string;
     bidderId: string;
@@ -27,5 +31,6 @@ export type SettledAuctionData = {
     bidId: string;
     status: BidStatus;
     amountCents: bigint | null;
+    invalidReason: string | null;
   } | null;
 };
