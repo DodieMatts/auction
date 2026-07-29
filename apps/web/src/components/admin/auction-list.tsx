@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { formatAuctionDateTime } from "@/lib/admin/admin-auction-formatters";
 import type { AdminAuction } from "@/lib/admin/admin-auction-types";
+import { LocalDateTime } from "@/components/ui/local-date-time";
 
 import { AuctionStatusBadge } from "./auction-status-badge";
 import styles from "./auction-list.module.css";
@@ -36,9 +36,9 @@ export function AuctionList({ auctions }: { auctions: AdminAuction[] }) {
               <td data-label="Phase">
                 <AuctionStatusBadge value={auction.phase} kind="phase" />
               </td>
-              <td data-label="Start">{formatAuctionDateTime(auction.startTime)}</td>
-              <td data-label="Reveal">{formatAuctionDateTime(auction.revealTime)}</td>
-              <td data-label="End">{formatAuctionDateTime(auction.endTime)}</td>
+              <td data-label="Start"><LocalDateTime value={auction.startTime} /></td>
+              <td data-label="Reveal"><LocalDateTime value={auction.revealTime} /></td>
+              <td data-label="End"><LocalDateTime value={auction.endTime} /></td>
               <td data-label="Version">{auction.version}</td>
               <td data-label="Actions">
                 <Link className={styles.link} href={`/admin/auctions/${auction.id}`}>

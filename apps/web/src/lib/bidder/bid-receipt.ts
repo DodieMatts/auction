@@ -16,7 +16,7 @@ import type {
   RevealReceipt,
 } from "./bidder-auction-types";
 
-export const receiptMismatchMessage = "This receipt does not match this auction";
+export const receiptMismatchMessage = "The receipt does not match this auction.";
 
 export function createRevealReceipt({
   auction,

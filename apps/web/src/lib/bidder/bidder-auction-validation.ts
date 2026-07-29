@@ -2,6 +2,7 @@ import type {
   AuctionPhase,
   AuctionStatus,
   BidCommitmentResponse,
+  BidInvalidReason,
   BidParticipationResponse,
   BidRevealResponse,
   BidRevealStatusResponse,
@@ -31,6 +32,12 @@ const phases = new Set<AuctionPhase>(["SCHEDULED", "COMMIT", "REVEAL", "ENDED", 
 const bidStatuses = new Set<BidStatus>(["COMMITTED", "REVEALED", "INVALID", "WON", "LOST"]);
 const validationStatuses = new Set<RevealValidationStatus>(["PENDING", "VALID", "INVALID"]);
 const outcomes = new Set<BidderAuctionOutcome>(["NOT_PARTICIPATED", "WON", "LOST", "INVALID"]);
+const invalidReasons = new Set<BidInvalidReason>([
+  "NOT_REVEALED",
+  "COMMITMENT_MISMATCH",
+  "REPLACED_RECEIPT",
+  "REVEAL_NOT_ACCEPTED",
+]);
 
 export function validateBidderAuctionListResponse(value: unknown): BidderAuctionListResponse {
   if (!isRecord(value) || !isIsoDate(value.serverTime) || !isRecord(value.pagination)) {
@@ -205,6 +212,7 @@ function parseParticipation(value: unknown) {
     status: parseBidStatus(value.status),
     version: parseNonnegativeInteger(value.version),
     currentCommitment: parseCommitment(value.currentCommitment),
+    invalidReason: value.invalidReason === null ? null : parseInvalidReason(value.invalidReason),
   };
 }
 
@@ -249,6 +257,7 @@ function parseYourOutcome(value: unknown) {
   return {
     status,
     amountCents: value.amountCents === null ? null : parseMoney(value.amountCents),
+    invalidReason: value.invalidReason === null ? null : parseInvalidReason(value.invalidReason),
   };
 }
 
@@ -302,6 +311,13 @@ function parseRevealValidationStatus(value: unknown): RevealValidationStatus {
 function parseOutcome(value: unknown): BidderAuctionOutcome {
   if (typeof value !== "string" || !outcomes.has(value as BidderAuctionOutcome)) throwInvalid();
   return value as BidderAuctionOutcome;
+}
+
+function parseInvalidReason(value: unknown): BidInvalidReason {
+  if (typeof value !== "string" || !invalidReasons.has(value as BidInvalidReason)) {
+    throwInvalid();
+  }
+  return value as BidInvalidReason;
 }
 
 function parseMoney(value: unknown): string {

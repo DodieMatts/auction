@@ -26,6 +26,16 @@
   color: var(--dashboard-text-muted);
 }
 
+.warning {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--status-warning);
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-surface);
+  color: var(--dashboard-text);
+  font-weight: 700;
+}
+
 .form {
   display: grid;
   gap: var(--space-4);

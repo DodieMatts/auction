@@ -16,6 +16,7 @@ export type CommitmentBidRecord = {
   id: string;
   status: BidStatus;
   version: number;
+  invalidRevealReason?: string | null;
 };
 
 export type CurrentCommitmentRecord = {
@@ -91,6 +92,10 @@ export function mapBidParticipationResponse(input: {
               protocolVersion: input.bid.currentCommitment.protocolVersion,
               committedAt: input.bid.currentCommitment.committedAt.toISOString(),
             },
+            invalidReason:
+              input.bid.status === "INVALID"
+                ? input.bid.invalidRevealReason ?? "NOT_REVEALED"
+                : null,
           }
         : null,
     serverTime: input.databaseNow.toISOString(),

@@ -22,6 +22,9 @@ import type { AuthenticatedUser } from "@/lib/auth/auth-types";
 import { BidReceiptPanel } from "./bid-receipt-panel";
 import styles from "./bid-commitment-form.module.css";
 
+const replacementBidMessage =
+  "You already submitted a bid for this auction. Submitting a new bid will replace your previous bid. Your previous receipt will no longer work, so make sure you save the new receipt.";
+
 type SubmissionState =
   | { type: "idle" }
   | { type: "success"; message: string; receipt: RevealReceipt }
@@ -49,7 +52,7 @@ export function BidCommitmentForm({
     event.preventDefault();
     if (isSubmitting) return;
     if (isReplacement && !confirmedReplacement) {
-      setState({ type: "error", message: "Confirm that this replacement invalidates the older receipt." });
+      setState({ type: "error", message: "Confirm that you understand the new bid replaces your previous bid and the previous receipt will no longer work." });
       return;
     }
 
@@ -94,7 +97,7 @@ export function BidCommitmentForm({
       setState({
         type: "success",
         message: response.replacedPreviousCommitment
-          ? "Replacement commitment submitted."
+          ? "New bid submitted. Save the new receipt; the previous receipt will no longer work."
           : "Commitment submitted.",
         receipt,
       });
@@ -119,6 +122,7 @@ export function BidCommitmentForm({
           Enter an amount in {auction.currency}. Only a cryptographic commitment is sent to
           the server during this phase.
         </p>
+        {isReplacement ? <p className={styles.warning}>{replacementBidMessage}</p> : null}
       </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
@@ -143,7 +147,7 @@ export function BidCommitmentForm({
               checked={confirmedReplacement}
               onChange={(event) => setConfirmedReplacement(event.target.checked)}
             />
-            <span>I understand the older receipt cannot reveal this replacement.</span>
+            <span>I understand this new bid replaces my previous bid and the previous receipt will no longer work.</span>
           </label>
         ) : null}
 

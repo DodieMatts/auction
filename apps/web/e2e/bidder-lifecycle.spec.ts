@@ -37,6 +37,7 @@ test("complete bidder commitment, receipt, reveal, settlement, and result workfl
 
   const charlie = await createTestUser(database, namespace, "bidder-charlie", "BIDDER");
   const delta = await createTestUser(database, namespace, "bidder-delta", "BIDDER");
+  const echo = await createTestUser(database, namespace, "bidder-echo", "BIDDER");
   const auction = await createTestAuction(database, {
     namespace,
     label: "bidder browser lifecycle",
@@ -114,6 +115,8 @@ test("complete bidder commitment, receipt, reveal, settlement, and result workfl
     bidVersion: 1,
   });
 
+  const echoParticipant = await createBidderParticipant(browser, monitorPage, echo, auction.id, "130.00");
+
   const deltaContext = await createAuthenticatedContext(browser, delta);
   const deltaPage = await deltaContext.newPage();
   await monitorPage(deltaPage);
@@ -128,7 +131,7 @@ test("complete bidder commitment, receipt, reveal, settlement, and result workfl
   await expect(page.getByRole("heading", { name: "Submit commitment" })).toHaveCount(0);
 
   await pasteReceiptAndValidate(page, alphaFirstReceipt);
-  await expect(page.getByText("The receipt does not match this auction.")).toBeVisible();
+  await expect(page.getByText("This receipt is from a bid that was replaced. Use the newest receipt for the active bid.")).toBeVisible();
 
   for (const field of ["amountCents", "secret", "commitmentHash", "auctionId", "bidderId", "currency"] as const) {
     await pasteReceiptAndValidate(charliePage, alterReceipt(charlieReceipt, field));
@@ -179,6 +182,8 @@ test("complete bidder commitment, receipt, reveal, settlement, and result workfl
 
   await moveAuctionToEndedPhase(database, auction.id);
   const adminContext = await createAuthenticatedContext(browser, adminUser);
+  const adminPage = await adminContext.newPage();
+  await monitorPage(adminPage);
   const adminRequest = adminContext.request;
   const settlement = await adminRequest.post(`/api/admin/auctions/${auction.id}/settle`, {
     headers: { Origin: "http://localhost:3119" },
@@ -192,11 +197,34 @@ test("complete bidder commitment, receipt, reveal, settlement, and result workfl
     alphaReplacementReceipt.secret,
     bravo.receipt.secret,
     charlieReceipt.secret,
+    echoParticipant.receipt.secret,
     alphaReplacementReceipt.commitmentHash,
     bravo.receipt.commitmentHash,
     charlieReceipt.commitmentHash,
+    echoParticipant.receipt.commitmentHash,
+    "13000",
     "15000",
     "20000",
+  ]);
+  await adminPage.goto(`/admin/auctions/${auction.id}`);
+  await expect(adminPage.getByRole("heading", { name: "Settlement results" })).toBeVisible();
+  await expect(adminPage.getByText("Invalid bid reasons")).toBeVisible();
+  await expect(adminPage.getByText("This bid was marked invalid because it was not revealed before the reveal period ended.")).toBeVisible();
+  await expect(adminPage.getByText("This bid was marked invalid because the submitted receipt did not match the latest commitment.")).toBeVisible();
+  await expectPageToExclude(adminPage, [
+    alphaReplacementReceipt.secret,
+    bravo.receipt.secret,
+    charlieReceipt.secret,
+    echoParticipant.receipt.secret,
+    alphaReplacementReceipt.commitmentHash,
+    bravo.receipt.commitmentHash,
+    charlieReceipt.commitmentHash,
+    echoParticipant.receipt.commitmentHash,
+    "13000",
+    "15000",
+    "20000",
+    "COMMITMENT_MISMATCH",
+    "NOT_REVEALED",
   ]);
 
   await assertBidderResult({
@@ -209,6 +237,8 @@ test("complete bidder commitment, receipt, reveal, settlement, and result workfl
       secondBidderUser.email,
       charlie.email,
       delta.email,
+      echo.email,
+      "$130.00",
       "$150.00",
       "$200.00",
       alphaReplacementReceipt.secret,
@@ -225,6 +255,8 @@ test("complete bidder commitment, receipt, reveal, settlement, and result workfl
       bidderUser.email,
       charlie.email,
       delta.email,
+      echo.email,
+      "$130.00",
       "$200.00",
       bravo.receipt.secret,
       bravo.receipt.commitmentHash,
@@ -240,12 +272,36 @@ test("complete bidder commitment, receipt, reveal, settlement, and result workfl
       bidderUser.email,
       secondBidderUser.email,
       delta.email,
+      echo.email,
+      "$130.00",
       "$150.00",
       "$200.00",
       charlieReceipt.secret,
       charlieReceipt.commitmentHash,
       "COMMITMENT_MISMATCH",
     ],
+    invalidReason:
+      "This bid was marked invalid because the submitted receipt did not match the latest commitment.",
+  });
+  await assertBidderResult({
+    page: echoParticipant.page,
+    auctionId: auction.id,
+    expectedOutcome: "Invalid",
+    expectedPersonalAmount: "Not available",
+    winningAmount: "$175.00",
+    hiddenText: [
+      bidderUser.email,
+      secondBidderUser.email,
+      charlie.email,
+      delta.email,
+      "$150.00",
+      "$200.00",
+      echoParticipant.receipt.secret,
+      echoParticipant.receipt.commitmentHash,
+      "NOT_REVEALED",
+    ],
+    invalidReason:
+      "This bid was marked invalid because it was not revealed before the reveal period ended.",
   });
   await assertBidderResult({
     page: deltaPage,
@@ -257,6 +313,8 @@ test("complete bidder commitment, receipt, reveal, settlement, and result workfl
       bidderUser.email,
       secondBidderUser.email,
       charlie.email,
+      echo.email,
+      "$130.00",
       "$150.00",
       "$200.00",
       alphaReplacementReceipt.secret,
@@ -288,6 +346,7 @@ test("complete bidder commitment, receipt, reveal, settlement, and result workfl
   await bravo.context.close();
   await charlieContext.close();
   await deltaContext.close();
+  await echoParticipant.context.close();
 });
 
 async function createBidderParticipant(
@@ -315,7 +374,8 @@ async function submitCommitmentThroughUi(
 ): Promise<RevealReceipt> {
   await page.getByLabel("Bid amount").fill(amount);
   if (options.replacement) {
-    await page.getByLabel("I understand the older receipt cannot reveal this replacement.").check();
+    await expect(page.getByText("You already submitted a bid for this auction. Submitting a new bid will replace your previous bid. Your previous receipt will no longer work, so make sure you save the new receipt.")).toBeVisible();
+    await page.getByLabel("I understand this new bid replaces my previous bid and the previous receipt will no longer work.").check();
   }
   const responsePromise = page.waitForResponse(
     (response) =>
@@ -328,6 +388,9 @@ async function submitCommitmentThroughUi(
   const response = await responsePromise;
   expect(response.status()).toBe(201);
   await expect(page.getByRole("heading", { name: "Save this receipt now." })).toBeVisible();
+  if (options.replacement) {
+    await expect(page.getByText("New bid submitted. Save the new receipt; the previous receipt will no longer work.")).toBeVisible();
+  }
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Download receipt" }).click();
   const download = await downloadPromise;
@@ -371,6 +434,7 @@ async function assertBidderResult({
   expectedPersonalAmount,
   winningAmount,
   hiddenText,
+  invalidReason,
 }: {
   page: Page;
   auctionId: string;
@@ -378,6 +442,7 @@ async function assertBidderResult({
   expectedPersonalAmount: string;
   winningAmount: string;
   hiddenText: string[];
+  invalidReason?: string;
 }) {
   await page.goto(`/auctions/${auctionId}`);
   await expect(page.getByRole("heading", { name: "Final outcome" })).toBeVisible();
@@ -387,6 +452,9 @@ async function assertBidderResult({
   await expect(page.getByText("Total bids")).toBeVisible();
   await expect(page.getByText("Valid reveals")).toBeVisible();
   await expect(page.getByText("Invalid bids")).toBeVisible();
+  if (invalidReason) {
+    expect(await page.getByText(invalidReason).count()).toBeGreaterThan(0);
+  }
   for (const value of hiddenText) {
     await expect(page.getByText(value)).toHaveCount(0);
   }

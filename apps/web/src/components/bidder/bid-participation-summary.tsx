@@ -1,4 +1,5 @@
-import { formatAuctionDateTime } from "@/lib/bidder/bidder-auction-formatters";
+import { getBidInvalidReasonMessage } from "@/lib/bidder/bid-invalid-reasons";
+import { LocalDateTime } from "@/components/ui/local-date-time";
 import type {
   BidParticipationResponse,
   BidRevealStatusResponse,
@@ -44,13 +45,19 @@ export function BidParticipationSummary({
           <div>
             <dt>Current commitment time</dt>
             <dd>
-              {formatAuctionDateTime(participation.participation.currentCommitment.committedAt)}
+              <LocalDateTime value={participation.participation.currentCommitment.committedAt} />
             </dd>
           </div>
           {revealStatus?.validReveal ? (
             <div>
               <dt>Reveal submitted</dt>
-              <dd>{formatAuctionDateTime(revealStatus.validReveal.submittedAt)}</dd>
+              <dd><LocalDateTime value={revealStatus.validReveal.submittedAt} /></dd>
+            </div>
+          ) : null}
+          {participation.participation.invalidReason ? (
+            <div className={styles.wide}>
+              <dt>Invalid reason</dt>
+              <dd>{getBidInvalidReasonMessage(participation.participation.invalidReason)}</dd>
             </div>
           ) : null}
           {revealStatus && revealStatus.invalidAttemptCount > 0 ? (

@@ -20,7 +20,8 @@
 }
 
 .item,
-.winner {
+.winner,
+.reasons {
   border: 1px solid var(--module-border);
   border-radius: var(--radius-md);
   background: var(--module-background-raised);
@@ -46,6 +47,25 @@
   display: flex;
   gap: var(--space-3);
   align-items: flex-start;
+}
+
+.reasons {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.reasons ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reasons li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
 .symbol {

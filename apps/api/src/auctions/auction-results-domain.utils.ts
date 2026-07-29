@@ -25,6 +25,7 @@ type SettledAuctionInvariantRecord = {
 type BidderOutcomeInput = {
   status: BidStatus;
   amountCents: bigint | null;
+  invalidReason: string | null;
 } | null;
 
 const inconsistentResultsMessage = "Auction result data is inconsistent";
@@ -82,11 +83,13 @@ export function validateSettledAuctionInvariants(input: {
 export function deriveBidderAuctionOutcome(input: BidderOutcomeInput): {
   status: BidderAuctionOutcome;
   amountCents: string | null;
+  invalidReason: string | null;
 } {
   if (!input) {
     return {
       status: BidderAuctionOutcome.NOT_PARTICIPATED,
       amountCents: null,
+      invalidReason: null,
     };
   }
 
@@ -101,6 +104,7 @@ export function deriveBidderAuctionOutcome(input: BidderOutcomeInput): {
           ? BidderAuctionOutcome.WON
           : BidderAuctionOutcome.LOST,
       amountCents: input.amountCents.toString(),
+      invalidReason: null,
     };
   }
 
@@ -108,6 +112,7 @@ export function deriveBidderAuctionOutcome(input: BidderOutcomeInput): {
     return {
       status: BidderAuctionOutcome.INVALID,
       amountCents: null,
+      invalidReason: input.invalidReason ?? "NOT_REVEALED",
     };
   }
 
