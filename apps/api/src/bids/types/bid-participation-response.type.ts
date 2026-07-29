@@ -15,6 +15,7 @@ export type BidParticipationResponse = {
       protocolVersion: number;
       committedAt: string;
     };
+    invalidReason: string | null;
   } | null;
   serverTime: string;
 };

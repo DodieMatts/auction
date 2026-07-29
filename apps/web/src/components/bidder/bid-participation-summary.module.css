@@ -47,6 +47,10 @@
   background: var(--module-background-raised);
 }
 
+.details .wide {
+  grid-column: 1 / -1;
+}
+
 .details dt {
   color: var(--dashboard-text-muted);
   font-size: 0.78rem;

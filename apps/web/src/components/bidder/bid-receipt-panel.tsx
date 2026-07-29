@@ -7,8 +7,8 @@ import {
   downloadRevealReceipt,
   serializeRevealReceipt,
 } from "@/lib/bidder/bid-receipt";
-import { formatAuctionDateTime } from "@/lib/bidder/bidder-auction-formatters";
 import type { RevealReceipt } from "@/lib/bidder/bidder-auction-types";
+import { LocalDateTime } from "@/components/ui/local-date-time";
 
 import styles from "./bid-receipt-panel.module.css";
 
@@ -30,13 +30,13 @@ export function BidReceiptPanel({ receipt }: { receipt: RevealReceipt }) {
       <div>
         <p className={styles.eyebrow}>Commitment submitted</p>
         <h2 id="receipt-title">Save this receipt now.</h2>
-        <p>The bid cannot be revealed without it. Replacements require a new receipt.</p>
+        <p>Only the newest receipt can reveal your active bid. If this bid replaced an earlier bid, the previous receipt will no longer work.</p>
       </div>
 
       <dl className={styles.details}>
         <div>
           <dt>Committed at</dt>
-          <dd>{formatAuctionDateTime(receipt.committedAt)}</dd>
+          <dd><LocalDateTime value={receipt.committedAt} /></dd>
         </div>
         <div>
           <dt>Bid version</dt>

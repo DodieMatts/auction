@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { formatAuctionDateTime } from "@/lib/bidder/bidder-auction-formatters";
 import type { BidderAuction } from "@/lib/bidder/bidder-auction-types";
+import { LocalDateTime } from "@/components/ui/local-date-time";
 
 import { BidderAuctionStatus } from "./bidder-auction-status";
 import styles from "./bidder-auction-card.module.css";
@@ -24,15 +24,15 @@ export function BidderAuctionCard({ auction }: { auction: BidderAuction }) {
         </div>
         <div>
           <dt>Start</dt>
-          <dd>{formatAuctionDateTime(auction.startTime)}</dd>
+          <dd><LocalDateTime value={auction.startTime} /></dd>
         </div>
         <div>
           <dt>Reveal</dt>
-          <dd>{formatAuctionDateTime(auction.revealTime)}</dd>
+          <dd><LocalDateTime value={auction.revealTime} /></dd>
         </div>
         <div>
           <dt>End</dt>
-          <dd>{formatAuctionDateTime(auction.endTime)}</dd>
+          <dd><LocalDateTime value={auction.endTime} /></dd>
         </div>
       </dl>
 

@@ -8,6 +8,11 @@ import {
   AdminAuctionClientError,
   updateAuction,
 } from "@/lib/admin/admin-auction-client";
+import {
+  compareLocalDateTimeInputs,
+  localDateTimeInputToUtcIso,
+  utcIsoToLocalDateTimeInput,
+} from "@/lib/date-time";
 import type { AdminAuction } from "@/lib/admin/admin-auction-types";
 import { FormMessage } from "@/components/admin/form-message";
 
@@ -58,9 +63,9 @@ export function AuctionForm(props: AuctionFormProps) {
         title: title.trim(),
         description: description.trim() || null,
         currency: currency.trim().toUpperCase(),
-        startTime: toIsoTimestamp(startTime),
-        revealTime: toIsoTimestamp(revealTime),
-        endTime: toIsoTimestamp(endTime),
+        startTime: localDateTimeInputToUtcIso(startTime),
+        revealTime: localDateTimeInputToUtcIso(revealTime),
+        endTime: localDateTimeInputToUtcIso(endTime),
       };
 
       if (props.mode === "create") {
@@ -190,9 +195,9 @@ function getInitialValues(props: AuctionFormProps) {
       title: props.auction.title,
       description: props.auction.description ?? "",
       currency: props.auction.currency,
-      startTime: isoToLocalInput(props.auction.startTime),
-      revealTime: isoToLocalInput(props.auction.revealTime),
-      endTime: isoToLocalInput(props.auction.endTime),
+      startTime: utcIsoToLocalDateTimeInput(props.auction.startTime),
+      revealTime: utcIsoToLocalDateTimeInput(props.auction.revealTime),
+      endTime: utcIsoToLocalDateTimeInput(props.auction.endTime),
     };
   }
 
@@ -205,36 +210,26 @@ function getInitialValues(props: AuctionFormProps) {
     title: "",
     description: "",
     currency: "USD",
-    startTime: isoToLocalInput(start.toISOString()),
-    revealTime: isoToLocalInput(reveal.toISOString()),
-    endTime: isoToLocalInput(end.toISOString()),
+    startTime: utcIsoToLocalDateTimeInput(start.toISOString()),
+    revealTime: utcIsoToLocalDateTimeInput(reveal.toISOString()),
+    endTime: utcIsoToLocalDateTimeInput(end.toISOString()),
   };
 }
 
-function isoToLocalInput(isoValue: string): string {
-  const date = new Date(isoValue);
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
-  return local.toISOString().slice(0, 16);
-}
-
-function toIsoTimestamp(localValue: string): string {
-  return new Date(localValue).toISOString();
-}
-
 function validateSchedule(startValue: string, revealValue: string, endValue: string): string | null {
-  const start = new Date(startValue);
-  const reveal = new Date(revealValue);
-  const end = new Date(endValue);
+  const startToReveal = compareLocalDateTimeInputs(startValue, revealValue);
+  const revealToEnd = compareLocalDateTimeInputs(revealValue, endValue);
+  const startToNow = compareLocalDateTimeInputs(startValue, utcIsoToLocalDateTimeInput(new Date().toISOString()));
 
-  if ([start, reveal, end].some((date) => Number.isNaN(date.getTime()))) {
+  if (startToReveal === null || revealToEnd === null || startToNow === null) {
     return "Enter valid start, reveal, and end times.";
   }
 
-  if (!(start.getTime() < reveal.getTime() && reveal.getTime() < end.getTime())) {
+  if (!(startToReveal < 0 && revealToEnd < 0)) {
     return "Schedule must follow start, reveal, then end.";
   }
 
-  if (start.getTime() <= Date.now()) {
+  if (startToNow <= 0) {
     return "The final start time must be in the future.";
   }
 

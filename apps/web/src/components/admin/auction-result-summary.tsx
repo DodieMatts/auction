@@ -1,5 +1,7 @@
 import type { AdminAuctionResultResponse } from "@/lib/admin/admin-auction-types";
-import { formatAuctionDateTime, formatAuctionMoney } from "@/lib/admin/admin-auction-formatters";
+import { formatAuctionMoney } from "@/lib/admin/admin-auction-formatters";
+import { getBidInvalidReasonMessage } from "@/lib/bidder/bid-invalid-reasons";
+import { LocalDateTime } from "@/components/ui/local-date-time";
 
 import styles from "./auction-result-summary.module.css";
 
@@ -21,7 +23,10 @@ export function AuctionResultSummary({ result }: AuctionResultSummaryProps) {
         <SummaryItem label="Total bids" value={String(summary.totalBidCount)} />
         <SummaryItem label="Valid reveals" value={String(summary.validRevealCount)} />
         <SummaryItem label="Invalid bids" value={String(summary.invalidBidCount)} />
-        <SummaryItem label="Settled" value={formatAuctionDateTime(auction.settledAt)} />
+        <div className={styles.item}>
+          <span>Settled</span>
+          <strong><LocalDateTime value={auction.settledAt} /></strong>
+        </div>
       </div>
 
       <div className={styles.winner}>
@@ -40,6 +45,20 @@ export function AuctionResultSummary({ result }: AuctionResultSummaryProps) {
           )}
         </div>
       </div>
+
+      {summary.invalidReasons.length > 0 ? (
+        <div className={styles.reasons}>
+          <h3>Invalid bid reasons</h3>
+          <ul>
+            {summary.invalidReasons.map((item) => (
+              <li key={item.reason}>
+                <span>{getBidInvalidReasonMessage(item.reason) ?? "Invalid bid"}</span>
+                <strong>{item.count}</strong>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </section>
   );
 }

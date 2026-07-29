@@ -8,6 +8,10 @@ import {
   parseRevealReceipt,
   validateRevealReceiptForAuction,
 } from "@/lib/bidder/bid-receipt";
+import {
+  getBidInvalidReasonMessage,
+  getRevealSubmissionMessage,
+} from "@/lib/bidder/bid-invalid-reasons";
 import type {
   BidRevealStatusResponse,
   BidderAuction,
@@ -55,12 +59,18 @@ export function BidRevealForm({
         activeCommitmentHash: null,
       });
       if (revealStatus.bid && validated.bidVersion !== revealStatus.bid.version) {
-        throw new Error("Receipt version does not match the active bid.");
+        throw new Error(getBidInvalidReasonMessage("REPLACED_RECEIPT") ?? "The receipt does not match this auction.");
       }
       setState({ type: "ready", receipt: validated, message: "Receipt is ready to reveal." });
       return validated;
-    } catch {
-      setState({ type: "error", message: "The receipt does not match this auction." });
+    } catch (error) {
+      setState({
+        type: "error",
+        message:
+          error instanceof Error && error.message
+            ? error.message
+            : "The receipt does not match this auction.",
+      });
       return null;
     }
   }
@@ -160,10 +170,7 @@ export function BidRevealForm({
 
 function getSubmissionMessage(error: unknown): string {
   if (error instanceof BidderAuctionClientError) {
-    if (error.status === 422) return "The receipt does not match the active commitment.";
-    if (error.status === 409) return "Your bid state changed. Refresh before retrying.";
-    if (error.status === 503) return "Auction service is unavailable.";
-    return error.message;
+    return getRevealSubmissionMessage(error.status, error.message);
   }
   return "The reveal could not be submitted.";
 }

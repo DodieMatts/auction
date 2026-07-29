@@ -15,6 +15,10 @@ export type AdminAuctionResultResponse = {
     totalBidCount: number;
     validRevealCount: number;
     invalidBidCount: number;
+    invalidReasons: Array<{
+      reason: string;
+      count: number;
+    }>;
     winner: {
       bidder: {
         id: string;

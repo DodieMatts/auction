@@ -1,9 +1,10 @@
 import {
-  formatAuctionDateTime,
   formatAuctionMoney,
   formatOutcome,
 } from "@/lib/bidder/bidder-auction-formatters";
+import { getBidInvalidReasonMessage } from "@/lib/bidder/bid-invalid-reasons";
 import type { BidderAuctionResultResponse } from "@/lib/bidder/bidder-auction-types";
+import { LocalDateTime } from "@/components/ui/local-date-time";
 
 import { BidderOutcomeStatus } from "./bidder-auction-status";
 import styles from "./bidder-result-summary.module.css";
@@ -56,8 +57,14 @@ export function BidderResultSummary({ result }: { result: BidderAuctionResultRes
         </div>
         <div>
           <dt>Settlement time</dt>
-          <dd>{formatAuctionDateTime(result.auction.settledAt)}</dd>
+          <dd><LocalDateTime value={result.auction.settledAt} /></dd>
         </div>
+        {yourOutcome.invalidReason ? (
+          <div className={styles.wide}>
+            <dt>Why invalid</dt>
+            <dd>{getBidInvalidReasonMessage(yourOutcome.invalidReason)}</dd>
+          </div>
+        ) : null}
       </dl>
     </section>
   );

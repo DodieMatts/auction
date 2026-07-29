@@ -48,11 +48,17 @@ const resultBidSelect = {
   },
   revealAttempts: {
     where: {
-      validationStatus: RevealValidationStatus.VALID,
+      validationStatus: {
+        in: [RevealValidationStatus.VALID, RevealValidationStatus.INVALID],
+      },
+    },
+    orderBy: {
+      submittedAt: "desc",
     },
     select: {
       amountCents: true,
       validationStatus: true,
+      invalidReason: true,
     },
   },
 } satisfies Prisma.BidSelect;
@@ -175,12 +181,14 @@ export class AuctionResultsService {
       totalBidCount,
       validRevealCount,
       invalidBidCount,
+      invalidReasons: this.countInvalidReasons(bids),
       winner: await this.mapWinner(transaction, winnerBid),
       requestingBidderParticipation: requestingBidderBid
         ? {
             bidId: requestingBidderBid.id,
             status: requestingBidderBid.status,
             amountCents: this.getValidRevealAmount(requestingBidderBid),
+            invalidReason: this.getInvalidReason(requestingBidderBid),
           }
         : null,
     };
@@ -225,12 +233,41 @@ export class AuctionResultsService {
   }
 
   private requireValidRevealAmount(bid: ResultBid): bigint {
-    const amount = bid.revealAttempts[0]?.amountCents;
+    const amount = bid.revealAttempts.find(
+      (attempt) => attempt.validationStatus === RevealValidationStatus.VALID,
+    )?.amountCents;
 
     if (amount === undefined) {
       throw new InternalServerErrorException("Auction result data is inconsistent");
     }
 
     return amount;
+  }
+
+  private getInvalidReason(bid: ResultBid): string | null {
+    if (bid.status !== BidStatus.INVALID) {
+      return null;
+    }
+
+    return (
+      bid.revealAttempts.find(
+        (attempt) => attempt.validationStatus === RevealValidationStatus.INVALID,
+      )?.invalidReason ?? "NOT_REVEALED"
+    );
+  }
+
+  private countInvalidReasons(bids: ResultBid[]): SettledAuctionData["invalidReasons"] {
+    const counts = new Map<string, number>();
+
+    for (const bid of bids) {
+      const reason = this.getInvalidReason(bid);
+      if (reason) {
+        counts.set(reason, (counts.get(reason) ?? 0) + 1);
+      }
+    }
+
+    return [...counts]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([reason, count]) => ({ reason, count }));
   }
 }

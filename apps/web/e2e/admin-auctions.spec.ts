@@ -34,8 +34,26 @@ test("administrator dashboard, draft lifecycle, cancellation, and settlement", a
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
   await expect(page.getByText("○ Draft").first()).toBeVisible();
   await expectPageToExclude(page, ["creationRequestId", "cancellationRequestId"]);
+  const draftAuctionId = page.url().split("/").pop() ?? "";
+
+  const lateTitle = `${namespace} late local date`;
+  await page.goto("/admin/auctions/new");
+  await page.getByLabel("Title").fill(lateTitle);
+  await page.getByLabel("Currency").fill("USD");
+  await page.getByLabel("Description").fill(`${lateTitle} description`);
+  await page.getByLabel("Start time").fill(localInputFromParts(nextYear(), 7, 27, 21, 30));
+  await page.getByLabel("Reveal time").fill(localInputFromParts(nextYear(), 7, 27, 22, 30));
+  await page.getByLabel("End time").fill(localInputFromParts(nextYear(), 7, 27, 23, 55));
+  await page.getByRole("button", { name: "Create draft" }).click();
+  await expect(page).toHaveURL(/\/admin\/auctions\/[0-9a-f-]+$/);
+  await expect(page.getByRole("heading", { name: lateTitle })).toBeVisible();
+  await expect(page.getByText(`Jul 27, ${nextYear()}, 9:30 PM`)).toBeVisible();
+  await expect(page.getByText(`Jul 27, ${nextYear()}, 10:30 PM`)).toBeVisible();
+  await expect(page.getByText(`Jul 27, ${nextYear()}, 11:55 PM`)).toBeVisible();
+  await expect(page.getByText(`Jul 28, ${nextYear()}`)).toHaveCount(0);
 
   const editedTitle = `${title} edited`;
+  await page.goto(`/admin/auctions/${draftAuctionId}`);
   await page.getByLabel("Title").fill(editedTitle);
   await page.getByLabel("Description").fill(`${editedTitle} description`);
   await page.getByLabel("Start time").fill(localInputMinutesFromNow(75));
@@ -110,4 +128,22 @@ function localInputMinutesFromNow(minutes: number): string {
   const date = new Date(Date.now() + minutes * 60_000);
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
   return local.toISOString().slice(0, 16);
+}
+
+function localInputFromParts(
+  year: number,
+  month: number,
+  day: number,
+  hour: number,
+  minute: number,
+): string {
+  return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
+}
+
+function nextYear(): number {
+  return new Date().getFullYear() + 1;
+}
+
+function pad(value: number): string {
+  return value.toString().padStart(2, "0");
 }

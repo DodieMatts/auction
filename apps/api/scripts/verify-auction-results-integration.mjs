@@ -531,8 +531,12 @@ async function testRoleSpecificResults(
   assert(invalidResponse.statusCode === 200, "invalid bidder results should return 200");
   assert(invalidResponse.body.result.yourOutcome.status === "INVALID", "invalid outcome should be INVALID");
   assert(invalidResponse.body.result.yourOutcome.amountCents === null, "invalid outcome should not expose amount");
+  assert(
+    invalidResponse.body.result.yourOutcome.invalidReason === "COMMITMENT_MISMATCH",
+    "invalid bidder should receive safe invalid reason",
+  );
   assert(!JSON.stringify(invalidResponse.body).includes(fixture.loserAmount), "invalid bidder response leaked losing amount");
-  assertNoKeys(invalidResponse.body, ["invalidReason", "revealAttempt"], "invalid bidder result");
+  assertNoKeys(invalidResponse.body, ["revealAttempt"], "invalid bidder result");
 
   const nonparticipantResponse = await bidderResults(nonparticipantToken, fixture.auctionId);
   assert(nonparticipantResponse.statusCode === 200, "nonparticipant results should return 200");
@@ -551,6 +555,12 @@ async function testRoleSpecificResults(
   assert(adminResponse.body.summary.totalBidCount === 3, "admin total count should be 3");
   assert(adminResponse.body.summary.validRevealCount === 2, "admin valid reveal count should be 2");
   assert(adminResponse.body.summary.invalidBidCount === 1, "admin invalid count should be 1");
+  assert(
+    adminResponse.body.summary.invalidReasons?.some(
+      (item) => item.reason === "COMMITMENT_MISMATCH" && item.count === 1,
+    ),
+    "admin result should include aggregate invalid reason",
+  );
   assert(!JSON.stringify(adminResponse.body).includes(fixture.loserAmount), "admin result leaked losing amount");
   assertNoKeys(adminResponse.body, ["bidId", loserEmail, invalidEmail], "admin result");
 
@@ -611,7 +621,6 @@ async function testPrivacy(fixture, getOutput) {
     "creationRequestId",
     "cancellationRequestId",
     "passwordHash",
-    "invalidReason",
     "revealAttempt",
   ];
   const adminForbidden = [
@@ -622,7 +631,6 @@ async function testPrivacy(fixture, getOutput) {
     "creationRequestId",
     "cancellationRequestId",
     "passwordHash",
-    "invalidReason",
     "losingAmount",
   ];
 

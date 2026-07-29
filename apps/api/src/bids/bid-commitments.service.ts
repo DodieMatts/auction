@@ -6,7 +6,7 @@ import {
 import { validateCommitmentHash } from "@auction/commitment";
 
 import { AuctionPhase } from "../auctions/types/auction-phase.enum";
-import { AuctionStatus, BidStatus } from "../generated/prisma/enums";
+import { AuctionStatus, BidStatus, RevealValidationStatus } from "../generated/prisma/enums";
 import type { Prisma } from "../generated/prisma/client";
 import { getDatabaseTime } from "../prisma/database-time";
 import { PrismaService } from "../prisma/prisma.service";
@@ -68,6 +68,18 @@ const bidSelect = {
       commitmentHash: true,
       protocolVersion: true,
       committedAt: true,
+    },
+  },
+  revealAttempts: {
+    where: {
+      validationStatus: RevealValidationStatus.INVALID,
+    },
+    orderBy: {
+      submittedAt: "desc",
+    },
+    take: 1,
+    select: {
+      invalidReason: true,
     },
   },
 } satisfies Prisma.BidSelect;
@@ -184,6 +196,7 @@ export class BidCommitmentsService {
               status: bid.status,
               version: bid.version,
               currentCommitment,
+              invalidRevealReason: bid.revealAttempts[0]?.invalidReason ?? null,
             }
           : null,
         databaseNow,

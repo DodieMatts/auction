@@ -29,6 +29,7 @@ export function mapAdminAuctionResult(
       totalBidCount: data.totalBidCount,
       validRevealCount: data.validRevealCount,
       invalidBidCount: data.invalidBidCount,
+      invalidReasons: data.invalidReasons,
       winner: data.winner
         ? {
             bidder: {
